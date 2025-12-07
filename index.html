@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr-CA">
 <head>
@@ -31,7 +32,7 @@
 
         .container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
 
-        /* --- ÉCRAN DE LOGIN (NOUVEAU) --- */
+        /* --- ÉCRAN DE LOGIN --- */
         #loginScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-deep); z-index: 5000;
@@ -94,7 +95,7 @@
             border-radius: 30px; border: 1px solid var(--accent-cyan);
             cursor: pointer;
         }
-        .mini-avatar { width: 30px; height: 30px; border-radius: 50%; }
+        .mini-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 
         .dashboard { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { .dashboard { grid-template-columns: 2fr 1fr; } }
@@ -108,7 +109,7 @@
         .lb-user { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
         .lb-score { font-family: 'Rajdhani'; font-weight: bold; color: var(--accent-cyan); }
 
-        /* --- QUETES & BOUTIQUE (Style Précédent) --- */
+        /* --- QUETES & BOUTIQUE --- */
         .quest-card {
             background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, transparent 100%);
             border-left: 4px solid var(--text-dim); padding: 15px; margin-bottom: 10px;
@@ -145,8 +146,7 @@
 
 <div id="loginScreen">
     <h1 style="font-family:'Rajdhani'; letter-spacing:2px; color:var(--accent-cyan);">QUI ÊTES-VOUS ?</h1>
-    <div class="profile-grid" id="profileGrid">
-        </div>
+    <div class="profile-grid" id="profileGrid"></div>
 </div>
 
 <div id="pinModal">
@@ -170,7 +170,6 @@
 </div>
 
 <div class="container" id="mainApp" style="display:none;">
-    
     <div class="top-bar">
         <div class="current-user-pill" onclick="logout()">
             <img id="headerAvatar" src="" class="mini-avatar">
@@ -234,6 +233,10 @@
                         <b>5$ Argent</b><br><span style="color:var(--accent-gold)">500 $</span><br>
                         <button class="btn" style="margin-top:5px" onclick="buyItem(500, '5$ Argent')">ACHETER</button>
                     </div>
+                     <div class="shop-item">
+                        <b>Choix Souper</b><br><span style="color:var(--accent-gold)">1000 $</span><br>
+                        <button class="btn" style="margin-top:5px" onclick="buyItem(1000, 'Choix Souper')">ACHETER</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -242,15 +245,16 @@
 
 <script>
     // ********************************************
-    // CONFIGURATION (PHOTOS & PINS)
+    // ZONE DE CONFIGURATION (EDITER ICI)
     // ********************************************
-    const API_URL = "https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec"; 
     
-    // CHANGEZ LES URLS DES PHOTOS ICI !
-    // POUR VOS PHOTOS : Hébergez-les (imgur, etc.) et collez le lien.
-    const USERS_CONFIG = {
+    // 1. COLLEZ VOTRE LIEN GOOGLE SCRIPT ENTRE LES GUILLEMETS CI-DESSOUS :
+    const API_URL = "https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec"; 
+
+    // 2. CONFIGURATION DES UTILISATEURS (PHOTOS ET CODE PIN)
+    const CONFIG = {
         "Olivier": { 
-            pin: null, // Pas de code pour les enfants
+            pin: null, 
             avatar: "https://ui-avatars.com/api/?name=Olivier&background=00f2ff&color=000&size=128", 
             isAdmin: false 
         },
@@ -260,17 +264,18 @@
             isAdmin: false 
         },
         "Fred": { 
-            pin: "1455", // CODE PIN DE FRED
+            pin: "1234", 
             avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-1/527718589_10171696736605251_1331053584475097759_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=102&ccb=1-7&_nc_sid=e99d92&_nc_ohc=o07zJiHztkMQ7kNvwEHD79u&_nc_oc=Adk7OWDya1IBjzrp6ad6Xz1ndORiLEoLdasZm2bR53ywTNW-S7eEDKFU8vi8CE25T_U&_nc_zt=24&_nc_ht=scontent.fymq2-1.fna&_nc_gid=5ylIptMmSvvbb11nqRLBbQ&oh=00_AflOCvb0deId5q30t6HRLJqHS95_1ZF8iin6dkJfUP7opQ&oe=693B3ADF", 
             isAdmin: true 
         },
         "Karine": { 
-            pin: "1234", // CODE PIN DE KARINE
+            pin: "1234", 
             avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-6/523502028_10172130599825249_2579335258512020808_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=8xRDge3S9DQQ7kNvwHSD2Sv&_nc_oc=AdnLt_0Gs5-HDKRJ_ENuh6yjoIqdPMrjILZ_U8aYb5by_pThUgtUmBi3QguB0IbE7Bw&_nc_zt=23&_nc_ht=scontent.fymq2-1.fna&_nc_gid=OcjRtxyiDs9TBxAV7oQ0sA&oh=00_Afnluvs57hcbE9VxA_pFlur31R11yYVHnMa_Dt4aql9Hrg&oe=693B2E41", 
             isAdmin: true 
         }
     };
 
+    // 3. TACHES PRE-ENREGISTREES
     const PRESETS = {
         "dish": { title: "Vider le lave-vaisselle", gold: 15 },
         "trash": { title: "Sortir les poubelles", gold: 10 },
@@ -280,15 +285,22 @@
         "laundry": { title: "Plier le lavage", gold: 30 }
     };
 
-    // --- VARIABLES GLOBALES ---
+    // ********************************************
+    // FIN DE LA ZONE DE CONFIGURATION
+    // ********************************************
+
     let appData = { tasks: [], users: { "Olivier": {gold:0, xp:0}, "Alexis": {gold:0, xp:0}, "Fred": {gold:0, xp:0}, "Karine": {gold:0, xp:0} } };
     let currentUser = null;
     let currentPinInput = "";
     let pendingUserLogin = null;
 
-    // --- INITIALISATION ---
     async function init() {
         renderLoginScreen();
+        // Check if URL is missing
+        if(API_URL.includes("PASTE_YOUR")) {
+            alert("ATTENTION : L'URL Google Script est manquante dans le code !");
+            return;
+        }
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
@@ -297,35 +309,30 @@
         } catch(e) {
             console.error(e);
             document.getElementById('loadingOverlay').style.display = 'none';
-            alert("Mode hors ligne (Erreur connexion)");
+            // Silent fail to allow UI to show, but warn
+            console.log("Offline mode or error");
         }
     }
 
-    // --- GESTION LOGIN & PIN ---
     function renderLoginScreen() {
         const grid = document.getElementById('profileGrid');
         grid.innerHTML = "";
-        for (const [name, config] of Object.entries(USERS_CONFIG)) {
+        for (const [name, conf] of Object.entries(CONFIG)) {
             const card = document.createElement('div');
             card.className = 'profile-card';
-            card.innerHTML = `
-                <img src="${config.avatar}" class="avatar-img">
-                <div class="profile-name">${name}</div>
-            `;
+            card.innerHTML = `<img src="${conf.avatar}" class="avatar-img"><div class="profile-name">${name}</div>`;
             card.onclick = () => attemptLogin(name);
             grid.appendChild(card);
         }
     }
 
     function attemptLogin(name) {
-        if (USERS_CONFIG[name].pin) {
-            // Besoin d'un PIN
+        if (CONFIG[name].pin) {
             pendingUserLogin = name;
             currentPinInput = "";
             updatePinDisplay();
             document.getElementById('pinModal').style.display = 'flex';
         } else {
-            // Login direct (Enfant)
             completeLogin(name);
         }
     }
@@ -342,7 +349,7 @@
         document.getElementById('pinDisplay').innerText = "* ".repeat(currentPinInput.length) + "_ ".repeat(4 - currentPinInput.length);
     }
     function submitPin() {
-        if (currentPinInput === USERS_CONFIG[pendingUserLogin].pin) {
+        if (currentPinInput === CONFIG[pendingUserLogin].pin) {
             closePin();
             completeLogin(pendingUserLogin);
         } else {
@@ -356,11 +363,8 @@
         currentUser = name;
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-        
-        // Mise à jour Header
         document.getElementById('headerName').innerText = name;
-        document.getElementById('headerAvatar').src = USERS_CONFIG[name].avatar;
-        
+        document.getElementById('headerAvatar').src = CONFIG[name].avatar;
         renderDashboard();
     }
 
@@ -370,15 +374,11 @@
         document.getElementById('loginScreen').style.display = 'flex';
     }
 
-    // --- LOGIQUE PRINCIPALE ---
     function renderDashboard() {
         if (!currentUser) return;
-        
         const userData = appData.users[currentUser];
-        const config = USERS_CONFIG[currentUser];
-        const isAdmin = config.isAdmin;
+        const isAdmin = CONFIG[currentUser].isAdmin;
 
-        // Stats Header
         if(!isAdmin) {
             document.getElementById('headerGold').innerText = userData.gold;
             document.getElementById('headerLevel').innerText = Math.floor(userData.xp / 100) + 1;
@@ -387,9 +387,8 @@
              document.getElementById('headerLevel').innerText = "ADMIN";
         }
 
-        // Leaderboard (Classement)
         const sortedUsers = Object.keys(appData.users)
-            .filter(u => !USERS_CONFIG[u].isAdmin) // On exclut les parents du classement
+            .filter(u => !CONFIG[u].isAdmin)
             .sort((a,b) => appData.users[b].xp - appData.users[a].xp);
         
         let lbHtml = "";
@@ -398,17 +397,12 @@
             lbHtml += `
                 <div class="leaderboard-row">
                     <div class="rank-num">${trophy}</div>
-                    <div class="lb-user">
-                        <img src="${USERS_CONFIG[u].avatar}" class="mini-avatar">
-                        <span>${u}</span>
-                    </div>
+                    <div class="lb-user"><img src="${CONFIG[u].avatar}" class="mini-avatar"><span>${u}</span></div>
                     <div class="lb-score">XP: ${appData.users[u].xp}</div>
-                </div>
-            `;
+                </div>`;
         });
         document.getElementById('leaderboardList').innerHTML = lbHtml;
 
-        // Quêtes
         const list = document.getElementById('questList');
         list.innerHTML = '';
         document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
@@ -417,47 +411,33 @@
 
         appData.tasks.forEach(task => {
             if(task.status === 'done') return;
-
-            let badgeColor = "#555";
-            let statusText = "En Attente";
-            let actionBtn = "";
+            let badgeColor = "#555"; let statusText = "En Attente"; let actionBtn = "";
 
             if(task.status === 'review') {
-                badgeColor = "var(--accent-cyan)";
-                statusText = "Vérification...";
+                badgeColor = "var(--accent-cyan)"; statusText = "Vérification...";
                 if(isAdmin) actionBtn = `<button class="btn btn-approve" onclick="approveTask(${task.id})">✔ Valider</button>`;
                 else actionBtn = `<small style="color:var(--accent-cyan)">Attente validation</small>`;
             } else {
                 if(currentUser === task.assignee) actionBtn = `<button class="btn" onclick="completeTask(${task.id})">Terminer</button>`;
                 else if(isAdmin) actionBtn = `<small>Assigné: ${task.assignee}</small>`;
             }
-
             const card = document.createElement('div');
             card.className = 'quest-card';
             if(task.status === 'review') card.style.borderColor = "var(--accent-cyan)";
-            
             card.innerHTML = `
-                <div>
-                    <div style="font-weight:bold; font-size:1.1rem">${task.title}</div>
-                    <div style="color:#aaa; font-size:0.9rem">
-                        ${task.assignee} | <span style="color:var(--accent-gold)">${task.gold} $</span>
-                    </div>
-                </div>
-                <div style="text-align:right">
-                    <div style="font-size:0.7rem; text-transform:uppercase; color:${badgeColor}; font-weight:bold; margin-bottom:5px">${statusText}</div>
-                    ${actionBtn}
-                </div>
-            `;
+                <div><div style="font-weight:bold; font-size:1.1rem">${task.title}</div><div style="color:#aaa; font-size:0.9rem">${task.assignee} | <span style="color:var(--accent-gold)">${task.gold} $</span></div></div>
+                <div style="text-align:right"><div style="font-size:0.7rem; text-transform:uppercase; color:${badgeColor}; font-weight:bold; margin-bottom:5px">${statusText}</div>${actionBtn}</div>`;
             list.appendChild(card);
         });
     }
 
-    // --- ACTIONS (Mêmes qu'avant + Confetti) ---
     async function syncData() {
+        if(API_URL.includes("PASTE_YOUR")) return; // Stop if no URL
         await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(appData) });
     }
 
     function addTask() {
+        if(API_URL.includes("PASTE_YOUR")) { alert("Erreur: URL Google Script manquante !"); return; }
         const title = document.getElementById('newTaskName').value;
         const assignee = document.getElementById('newTaskAssignee').value;
         const gold = parseInt(document.getElementById('newTaskGold').value);
@@ -469,7 +449,7 @@
 
     function completeTask(id) {
         appData.tasks.find(t=>t.id===id).status = 'review';
-        confetti({ particleCount: 50, origin: { y: 0.8 } });
+        try { confetti({ particleCount: 50, origin: { y: 0.8 } }); } catch(e){}
         renderDashboard(); syncData();
     }
 
@@ -478,18 +458,18 @@
         t.status = 'done';
         appData.users[t.assignee].gold += t.gold;
         appData.users[t.assignee].xp += t.gold;
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        try { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); } catch(e){}
         renderDashboard(); syncData();
     }
 
     function buyItem(cost, item) {
         const u = appData.users[currentUser];
-        if(USERS_CONFIG[currentUser].isAdmin) return alert("Les parents ne jouent pas !");
+        if(CONFIG[currentUser].isAdmin) return alert("Les parents ne jouent pas !");
         if(u.gold >= cost) {
             if(confirm(`Acheter ${item} ?`)) {
                 u.gold -= cost;
                 renderDashboard(); syncData();
-                confetti({ particleCount: 50 });
+                try { confetti({ particleCount: 50 }); } catch(e){}
             }
         } else alert("Pas assez d'or !");
     }
