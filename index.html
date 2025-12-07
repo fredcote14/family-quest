@@ -14,6 +14,7 @@
             --accent-cyan: #00f2ff;
             --accent-gold: #ffb700;
             --accent-green: #00ff9d;
+            --accent-red: #ff0055;
             --text-main: #ffffff;
             --text-dim: #8b9bb4;
         }
@@ -22,279 +23,216 @@
             font-family: 'Exo 2', sans-serif;
             background: linear-gradient(135deg, var(--bg-deep) 0%, #1a2639 100%);
             color: var(--text-main);
-            margin: 0;
-            padding: 15px;
+            margin: 0; padding: 0;
             min-height: 100vh;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; padding-bottom: 50px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-bottom: 80px; }
 
-        /* --- ANIMATIONS --- */
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* --- ÉCRAN DE LOGIN (NOUVEAU) --- */
+        #loginScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-deep); z-index: 5000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         
-        @keyframes glowPulse {
-            0% { box-shadow: 0 0 5px rgba(0, 242, 255, 0.2); }
-            50% { box-shadow: 0 0 20px rgba(0, 242, 255, 0.6); }
-            100% { box-shadow: 0 0 5px rgba(0, 242, 255, 0.2); }
+        .profile-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+            max-width: 400px; width: 100%; padding: 20px;
         }
 
-        /* Panneaux */
+        .profile-card {
+            background: var(--bg-light); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; padding: 20px; text-align: center;
+            cursor: pointer; transition: transform 0.2s, border-color 0.2s;
+        }
+        .profile-card:hover { transform: scale(1.05); border-color: var(--accent-cyan); }
+        
+        .avatar-img {
+            width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+            border: 2px solid var(--accent-cyan); margin-bottom: 10px;
+            background: #000;
+        }
+        
+        .profile-name { font-family: 'Rajdhani'; font-size: 1.2rem; font-weight: bold; }
+
+        /* --- MODAL PIN --- */
+        #pinModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 6000;
+            display: none; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .pin-display {
+            font-size: 2rem; letter-spacing: 10px; color: var(--accent-cyan);
+            margin-bottom: 20px; font-family: 'Rajdhani'; min-height: 40px;
+        }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .num-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid var(--accent-cyan);
+            color: white; width: 60px; height: 60px; border-radius: 50%;
+            font-size: 1.2rem; font-weight: bold; cursor: pointer;
+        }
+        .num-btn:active { background: var(--accent-cyan); color: black; }
+
+        /* --- UI PRINCIPALE --- */
         .glass-panel {
-            background: rgba(15, 28, 46, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(0, 242, 255, 0.2);
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            margin-bottom: 24px;
-            transition: transform 0.3s ease;
-        }
-        
-        .glass-panel:hover {
-            border-color: rgba(0, 242, 255, 0.4);
+            background: rgba(15, 28, 46, 0.7); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px; padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        /* Stats Bar */
-        .stats-bar {
+        .top-bar {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--accent-cyan); padding-bottom: 15px;
-            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+            margin-bottom: 20px;
         }
-
-        .user-select {
-            background: var(--bg-deep); color: var(--accent-cyan);
-            border: 1px solid rgba(0, 242, 255, 0.3); padding: 12px 20px;
-            border-radius: 12px; font-family: 'Rajdhani', sans-serif;
-            font-weight: bold; font-size: 1.1rem; outline: none;
-            width: 100%; max-width: 220px;
-            transition: 0.3s;
+        .current-user-pill {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0, 242, 255, 0.1); padding: 8px 15px;
+            border-radius: 30px; border: 1px solid var(--accent-cyan);
+            cursor: pointer;
         }
-        .user-select:focus { box-shadow: 0 0 15px var(--accent-cyan); transform: scale(1.02); }
+        .mini-avatar { width: 30px; height: 30px; border-radius: 50%; }
 
-        .stat-box {
-            font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700;
-            display: flex; align-items: center; gap: 15px;
+        .dashboard { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { .dashboard { grid-template-columns: 2fr 1fr; } }
+
+        /* --- CLASSEMENT (LEADERBOARD) --- */
+        .leaderboard-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
+        .rank-num { font-size: 1.2rem; font-weight: bold; color: var(--accent-gold); width: 30px; }
+        .lb-user { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+        .lb-score { font-family: 'Rajdhani'; font-weight: bold; color: var(--accent-cyan); }
 
-        .level-badge {
-            background: linear-gradient(45deg, var(--accent-cyan), #0051ff);
-            padding: 5px 15px; border-radius: 8px; color: black;
-            font-size: 1rem; text-transform: uppercase;
-            box-shadow: 0 4px 10px rgba(0, 81, 255, 0.4);
-        }
-
-        .gold-text { 
-            color: var(--accent-gold); 
-            text-shadow: 0 0 15px rgba(255, 183, 0, 0.5);
-            transition: transform 0.2s;
-            display: inline-block;
-        }
-        .gold-bump { transform: scale(1.3); color: white; }
-
-        /* Dashboard */
-        .dashboard { display: grid; grid-template-columns: 1.8fr 1fr; gap: 24px; }
-        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
-
-        h2 {
-            font-family: 'Rajdhani', sans-serif; color: var(--accent-cyan);
-            text-transform: uppercase; letter-spacing: 2px; margin-top: 0;
-            font-size: 1.4rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 15px; margin-bottom: 20px;
-        }
-
-        /* Cartes de Quêtes Animées */
+        /* --- QUETES & BOUTIQUE (Style Précédent) --- */
         .quest-card {
-            display: flex; flex-direction: column;
-            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
-            border-left: 4px solid var(--text-dim); margin-bottom: 15px;
-            padding: 18px; border-radius: 0 12px 12px 0;
-            animation: slideIn 0.5s ease backwards; /* Animation d'entrée */
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; overflow: hidden;
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+            border-left: 4px solid var(--text-dim); padding: 15px; margin-bottom: 10px;
+            border-radius: 0 10px 10px 0; display: flex; justify-content: space-between; align-items: center;
         }
-        
-        .quest-card:hover {
-            transform: translateX(10px);
-            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        .quest-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .quest-title { font-size: 1.2rem; font-weight: 700; color: white; }
-        .quest-meta { color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
-        .reward-pill { 
-            background: rgba(255, 183, 0, 0.15); color: var(--accent-gold); 
-            padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; 
-            border: 1px solid rgba(255, 183, 0, 0.3);
-            box-shadow: 0 0 10px rgba(255, 183, 0, 0.1);
-        }
-
-        /* Boutons Interactifs */
         .btn {
-            background: var(--bg-deep); color: var(--accent-cyan);
-            border: 1px solid var(--accent-cyan); padding: 10px 20px;
-            font-family: 'Exo 2', sans-serif; border-radius: 8px;
-            cursor: pointer; text-transform: uppercase; font-weight: bold;
-            font-size: 0.85rem; width: 100%; transition: all 0.2s;
-            position: relative; overflow: hidden;
+            background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
+            padding: 8px 12px; border-radius: 6px; font-weight: bold; text-transform: uppercase;
+            font-size: 0.8rem; cursor: pointer;
         }
-        .btn:hover {
-            background: rgba(0, 242, 255, 0.1);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
-            transform: translateY(-2px);
-        }
-        .btn:active { transform: scale(0.95); }
-
         .btn-approve { border-color: var(--accent-green); color: var(--accent-green); }
-        .btn-approve:hover { box-shadow: 0 0 15px rgba(0, 255, 157, 0.4); background: rgba(0, 255, 157, 0.1); }
-
-        /* Boutique */
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
         .shop-item { 
-            background: var(--bg-light); border: 1px solid rgba(255,255,255,0.05); 
-            border-radius: 16px; padding: 20px; text-align: center;
-            display: flex; flex-direction: column; justify-content: space-between; height: 140px;
-            transition: all 0.3s;
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px; text-align: center; border-radius: 10px;
         }
-        .shop-item:hover {
-            transform: translateY(-5px) scale(1.03);
-            border-color: var(--accent-gold);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-        .shop-price { color: var(--accent-gold); font-weight: bold; font-size: 1.2rem; font-family: 'Rajdhani'; }
 
-        /* Inputs */
+        /* --- INPUTS --- */
         input, select {
-            width: 100%; padding: 14px; margin: 8px 0;
-            background: var(--bg-deep); border: 1px solid #334;
-            color: white; border-radius: 8px; box-sizing: border-box; font-size: 16px;
-            transition: 0.3s;
+            width: 100%; padding: 12px; margin: 5px 0; background: #091220;
+            border: 1px solid #2a3b55; color: white; border-radius: 8px;
         }
-        input:focus, select:focus { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); outline: none; }
-        #adminPanel { border: 1px solid var(--accent-cyan); background: rgba(0, 242, 255, 0.03); }
 
-        /* Badges */
-        .status-pill { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-        .st-pending { background: #222; color: #777; border: 1px solid #444; }
-        .st-review { background: rgba(0, 242, 255, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); animation: glowPulse 2s infinite; }
-
-        /* Popup */
-        #successPopup {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
-            background: rgba(5, 10, 20, 0.95); border: 3px solid var(--accent-gold);
-            padding: 40px; border-radius: 20px; text-align: center; z-index: 3000;
-            box-shadow: 0 0 50px rgba(255, 183, 0, 0.6);
-            display: none; opacity: 0;
-            min-width: 250px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #successPopup.active { transform: translate(-50%, -50%) scale(1); opacity: 1; display: block; }
-        #successPopup h1 { margin: 0; color: var(--accent-gold); font-family: 'Rajdhani'; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 2px; }
-        
         #loadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-deep); z-index: 2000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            font-family: 'Rajdhani'; color: var(--accent-cyan); gap: 20px;
+            background: var(--bg-deep); z-index: 7000;
+            display: flex; justify-content: center; align-items: center; color: var(--accent-cyan);
         }
-        .loader-ring { width: 50px; height: 50px; border: 4px solid #333; border-top: 4px solid var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* FIX: Makes the dropdown list easier to read */
-select option {
-    background-color: #000000; /* Solid Black Background */
-    color: #ffffff;            /* Pure White Text */
-}
     </style>
 </head>
 <body>
 
-<div id="successPopup">
-    <h1> Good Boy !</h1>
-    <p style="color:#ccc">Mission Validée.</p>
-</div>
+<div id="loadingOverlay">CHARGEMENT...</div>
 
-<div id="loadingOverlay">
-    <div class="loader-ring"></div>
-    <div style="letter-spacing: 3px;">CHARGEMENT...</div>
-</div>
-
-<div class="container">
-    <div class="glass-panel stats-bar">
-        <select id="userSelect" class="user-select" onchange="render()">
-            <option value="Olivier">👤 Olivier (12)</option>
-            <option value="Alexis">👤 Alexis (14)</option>
-            <option value="Fred">🛡️ Fred (Admin)</option>
-            <option value="Karine">🛡️ Karine (Admin)</option>
-        </select>
-        
-        <div id="playerStats" class="stat-box">
-            <span class="level-badge">NIV <span id="levelDisplay">1</span></span>
-            <span class="gold-text"><span id="goldDisplay">0</span> $ OR</span>
+<div id="loginScreen">
+    <h1 style="font-family:'Rajdhani'; letter-spacing:2px; color:var(--accent-cyan);">QUI ÊTES-VOUS ?</h1>
+    <div class="profile-grid" id="profileGrid">
         </div>
+</div>
+
+<div id="pinModal">
+    <h2 style="color:white; font-family:'Rajdhani'">CODE PARENT REQUIS</h2>
+    <div class="pin-display" id="pinDisplay">_ _ _ _</div>
+    <div class="numpad">
+        <button class="num-btn" onclick="enterDigit(1)">1</button>
+        <button class="num-btn" onclick="enterDigit(2)">2</button>
+        <button class="num-btn" onclick="enterDigit(3)">3</button>
+        <button class="num-btn" onclick="enterDigit(4)">4</button>
+        <button class="num-btn" onclick="enterDigit(5)">5</button>
+        <button class="num-btn" onclick="enterDigit(6)">6</button>
+        <button class="num-btn" onclick="enterDigit(7)">7</button>
+        <button class="num-btn" onclick="enterDigit(8)">8</button>
+        <button class="num-btn" onclick="enterDigit(9)">9</button>
+        <button class="num-btn" style="border-color:var(--accent-red)" onclick="clearPin()">C</button>
+        <button class="num-btn" onclick="enterDigit(0)">0</button>
+        <button class="num-btn" style="border-color:var(--accent-green)" onclick="submitPin()">OK</button>
+    </div>
+    <button style="margin-top:20px; background:none; border:none; color:#666; text-decoration:underline" onclick="closePin()">Annuler</button>
+</div>
+
+<div class="container" id="mainApp" style="display:none;">
+    
+    <div class="top-bar">
+        <div class="current-user-pill" onclick="logout()">
+            <img id="headerAvatar" src="" class="mini-avatar">
+            <span id="headerName" style="font-weight:bold">Nom</span>
+            <small>(Déconnexion)</small>
+        </div>
+        <div style="text-align:right">
+            <div style="color:var(--accent-gold); font-weight:bold; font-size:1.2rem"><span id="headerGold">0</span> $ OR</div>
+            <div style="font-size:0.8rem; color:var(--text-dim)">Niveau <span id="headerLevel">1</span></div>
+        </div>
+    </div>
+
+    <div class="glass-panel">
+        <h3 style="margin:0 0 10px 0; color:var(--accent-gold); border-bottom:1px solid #333; padding-bottom:5px">🏆 CLASSEMENT FAMILLE</h3>
+        <div id="leaderboardList"></div>
     </div>
 
     <div class="dashboard">
         <div>
             <div class="glass-panel">
-                <h2>⚔️ Quêtes Actives</h2>
+                <h2 style="margin-top:0; color:var(--accent-cyan)">⚔️ Missions</h2>
                 <div id="questList"></div>
             </div>
 
-            <div id="adminPanel" class="glass-panel" style="display:none;">
-                <h3 style="margin-top:0; color:var(--accent-cyan); font-family:'Rajdhani'">+ NOUVELLE MISSION</h3>
-                <label style="color:var(--text-dim); font-size:0.8rem; margin-bottom:5px; display:block;">Modèles Rapides :</label>
-                <select id="taskPreset" onchange="applyPreset()" style="background: #091220; border-color: #2a3b55;">
-                    <option value="">-- Sélectionner --</option>
-                    <option value="dish">🍽️ Vider le lave-vaisselle (15 G)</option>
-                    <option value="trash">🗑️ Sortir les poubelles (10 G)</option>
-                    <option value="room">🛏️ Ménage de la chambre (50 G)</option>
+            <div id="adminPanel" class="glass-panel" style="display:none; border-color:var(--accent-green)">
+                <h3 style="margin-top:0; color:var(--accent-green)">+ AJOUTER MISSION</h3>
+                <select id="taskPreset" onchange="applyPreset()">
+                    <option value="">-- Modèles Rapides --</option>
+                    <option value="dish">🍽️ Vider lave-vaisselle (15 G)</option>
+                    <option value="trash">🗑️ Sortir poubelles (10 G)</option>
+                    <option value="room">🛏️ Ménage chambre (50 G)</option>
                     <option value="snow">❄️ Pelleter l'entrée (100 G)</option>
-                    <option value="gear">🏒 Ranger l'équipement hockey (25 G)</option>
-                    <option value="laundry">👕 Plier le lavage (30 G)</option>
+                    <option value="gear">🏒 Équipement hockey (25 G)</option>
+                    <option value="laundry">👕 Plier lavage (30 G)</option>
                 </select>
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="newTaskName" placeholder="Titre de la mission...">
-                    <input type="number" id="newTaskGold" placeholder="$ Or" style="width:100px">
+                    <input type="text" id="newTaskName" placeholder="Titre...">
+                    <input type="number" id="newTaskGold" placeholder="$" style="width:80px">
                 </div>
                 <select id="newTaskAssignee">
                     <option value="Olivier">Pour : Olivier</option>
                     <option value="Alexis">Pour : Alexis</option>
                 </select>
-                <button class="btn" style="background:var(--accent-cyan); color:black; margin-top:10px;" onclick="addTask()">LANCER MISSION</button>
+                <button class="btn" style="width:100%; margin-top:10px; background:var(--accent-green); color:black" onclick="addTask()">LANCER</button>
             </div>
         </div>
-        
+
         <div>
             <div class="glass-panel">
-                <h2>🛒 Boutique</h2>
+                <h2 style="margin-top:0; color:var(--accent-gold)">🛒 Boutique</h2>
                 <div class="shop-grid">
                     <div class="shop-item">
-                        <div style="font-weight:bold; font-size:0.9rem">1h Jeux Vidéo</div>
-                        <div class="shop-price">50</div>
-                        <button class="btn" onclick="buyItem(50, '1h Jeux Vidéo')">ACHETER</button>
+                        <b>1h Jeux</b><br><span style="color:var(--accent-gold)">50 $</span><br>
+                        <button class="btn" style="margin-top:5px" onclick="buyItem(50, '1h Jeux')">ACHETER</button>
                     </div>
                     <div class="shop-item">
-                        <div style="font-weight:bold; font-size:0.9rem">Sauter Tâche</div>
-                        <div class="shop-price">200</div>
-                        <button class="btn" onclick="buyItem(200, 'Passe-Droit')">ACHETER</button>
+                        <b>Sauter Tâche</b><br><span style="color:var(--accent-gold)">200 $</span><br>
+                        <button class="btn" style="margin-top:5px" onclick="buyItem(200, 'Passe-Droit')">ACHETER</button>
                     </div>
                     <div class="shop-item">
-                        <div style="font-weight:bold; font-size:0.9rem">5$ Argent</div>
-                        <div class="shop-price">500</div>
-                        <button class="btn" onclick="buyItem(500, '5$ Argent')">ACHETER</button>
-                    </div>
-                     <div class="shop-item">
-                        <div style="font-weight:bold; font-size:0.9rem">Choix Souper</div>
-                        <div class="shop-price">1000</div>
-                        <button class="btn" onclick="buyItem(1000, 'Choix Souper')">ACHETER</button>
+                        <b>5$ Argent</b><br><span style="color:var(--accent-gold)">500 $</span><br>
+                        <button class="btn" style="margin-top:5px" onclick="buyItem(500, '5$ Argent')">ACHETER</button>
                     </div>
                 </div>
             </div>
@@ -304,12 +242,35 @@ select option {
 
 <script>
     // ********************************************
-    // COLLEZ VOTRE LIEN GOOGLE SCRIPT CI-DESSOUS
+    // CONFIGURATION (PHOTOS & PINS)
     // ********************************************
     const API_URL = "https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec"; 
-
-    const PARENTS = ["Fred", "Karine"];
     
+    // CHANGEZ LES URLS DES PHOTOS ICI !
+    // POUR VOS PHOTOS : Hébergez-les (imgur, etc.) et collez le lien.
+    const USERS_CONFIG = {
+        "Olivier": { 
+            pin: null, // Pas de code pour les enfants
+            avatar: "https://ui-avatars.com/api/?name=Olivier&background=00f2ff&color=000&size=128", 
+            isAdmin: false 
+        },
+        "Alexis": { 
+            pin: null, 
+            avatar: "https://ui-avatars.com/api/?name=Alexis&background=00ff9d&color=000&size=128", 
+            isAdmin: false 
+        },
+        "Fred": { 
+            pin: "1455", // CODE PIN DE FRED
+            avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-1/527718589_10171696736605251_1331053584475097759_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=102&ccb=1-7&_nc_sid=e99d92&_nc_ohc=o07zJiHztkMQ7kNvwEHD79u&_nc_oc=Adk7OWDya1IBjzrp6ad6Xz1ndORiLEoLdasZm2bR53ywTNW-S7eEDKFU8vi8CE25T_U&_nc_zt=24&_nc_ht=scontent.fymq2-1.fna&_nc_gid=5ylIptMmSvvbb11nqRLBbQ&oh=00_AflOCvb0deId5q30t6HRLJqHS95_1ZF8iin6dkJfUP7opQ&oe=693B3ADF", 
+            isAdmin: true 
+        },
+        "Karine": { 
+            pin: "1234", // CODE PIN DE KARINE
+            avatar: "https://ui-avatars.com/api/?name=Karine&background=ff0055&color=fff&size=128", 
+            isAdmin: true 
+        }
+    };
+
     const PRESETS = {
         "dish": { title: "Vider le lave-vaisselle", gold: 15 },
         "trash": { title: "Sortir les poubelles", gold: 10 },
@@ -319,150 +280,181 @@ select option {
         "laundry": { title: "Plier le lavage", gold: 30 }
     };
 
-    let appData = { 
-        tasks: [], 
-        users: { "Olivier": {gold:0, xp:0}, "Alexis": {gold:0, xp:0}, "Fred": {gold:0, xp:0}, "Karine": {gold:0, xp:0} } 
-    };
-    
-    // Pour l'animation des nombres
-    let currentDisplayedGold = 0;
+    // --- VARIABLES GLOBALES ---
+    let appData = { tasks: [], users: { "Olivier": {gold:0, xp:0}, "Alexis": {gold:0, xp:0}, "Fred": {gold:0, xp:0}, "Karine": {gold:0, xp:0} } };
+    let currentUser = null;
+    let currentPinInput = "";
+    let pendingUserLogin = null;
 
+    // --- INITIALISATION ---
     async function init() {
+        renderLoginScreen();
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
             if(data && data.users) appData = data;
             document.getElementById('loadingOverlay').style.display = 'none';
-            render(true); // True = premier chargement (pas d'animation liste)
-        } catch(e) { 
+        } catch(e) {
             console.error(e);
-            document.getElementById('loadingOverlay').innerHTML = "ERREUR DE CONNEXION";
+            document.getElementById('loadingOverlay').style.display = 'none';
+            alert("Mode hors ligne (Erreur connexion)");
         }
     }
 
-    async function syncData() {
-        await fetch(API_URL, {
-            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(appData)
+    // --- GESTION LOGIN & PIN ---
+    function renderLoginScreen() {
+        const grid = document.getElementById('profileGrid');
+        grid.innerHTML = "";
+        for (const [name, config] of Object.entries(USERS_CONFIG)) {
+            const card = document.createElement('div');
+            card.className = 'profile-card';
+            card.innerHTML = `
+                <img src="${config.avatar}" class="avatar-img">
+                <div class="profile-name">${name}</div>
+            `;
+            card.onclick = () => attemptLogin(name);
+            grid.appendChild(card);
+        }
+    }
+
+    function attemptLogin(name) {
+        if (USERS_CONFIG[name].pin) {
+            // Besoin d'un PIN
+            pendingUserLogin = name;
+            currentPinInput = "";
+            updatePinDisplay();
+            document.getElementById('pinModal').style.display = 'flex';
+        } else {
+            // Login direct (Enfant)
+            completeLogin(name);
+        }
+    }
+
+    function enterDigit(d) {
+        if(currentPinInput.length < 4) {
+            currentPinInput += d;
+            updatePinDisplay();
+        }
+    }
+    function clearPin() { currentPinInput = ""; updatePinDisplay(); }
+    function closePin() { document.getElementById('pinModal').style.display = 'none'; pendingUserLogin = null; }
+    function updatePinDisplay() {
+        document.getElementById('pinDisplay').innerText = "* ".repeat(currentPinInput.length) + "_ ".repeat(4 - currentPinInput.length);
+    }
+    function submitPin() {
+        if (currentPinInput === USERS_CONFIG[pendingUserLogin].pin) {
+            closePin();
+            completeLogin(pendingUserLogin);
+        } else {
+            alert("CODE INCORRECT");
+            currentPinInput = "";
+            updatePinDisplay();
+        }
+    }
+
+    function completeLogin(name) {
+        currentUser = name;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        
+        // Mise à jour Header
+        document.getElementById('headerName').innerText = name;
+        document.getElementById('headerAvatar').src = USERS_CONFIG[name].avatar;
+        
+        renderDashboard();
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+    }
+
+    // --- LOGIQUE PRINCIPALE ---
+    function renderDashboard() {
+        if (!currentUser) return;
+        
+        const userData = appData.users[currentUser];
+        const config = USERS_CONFIG[currentUser];
+        const isAdmin = config.isAdmin;
+
+        // Stats Header
+        if(!isAdmin) {
+            document.getElementById('headerGold').innerText = userData.gold;
+            document.getElementById('headerLevel').innerText = Math.floor(userData.xp / 100) + 1;
+        } else {
+             document.getElementById('headerGold').innerText = "-";
+             document.getElementById('headerLevel').innerText = "ADMIN";
+        }
+
+        // Leaderboard (Classement)
+        const sortedUsers = Object.keys(appData.users)
+            .filter(u => !USERS_CONFIG[u].isAdmin) // On exclut les parents du classement
+            .sort((a,b) => appData.users[b].xp - appData.users[a].xp);
+        
+        let lbHtml = "";
+        sortedUsers.forEach((u, index) => {
+            let trophy = index === 0 ? "👑" : (index + 1) + ".";
+            lbHtml += `
+                <div class="leaderboard-row">
+                    <div class="rank-num">${trophy}</div>
+                    <div class="lb-user">
+                        <img src="${USERS_CONFIG[u].avatar}" class="mini-avatar">
+                        <span>${u}</span>
+                    </div>
+                    <div class="lb-score">XP: ${appData.users[u].xp}</div>
+                </div>
+            `;
         });
-    }
+        document.getElementById('leaderboardList').innerHTML = lbHtml;
 
-    function applyPreset() {
-        const val = document.getElementById('taskPreset').value;
-        if (val && PRESETS[val]) {
-            document.getElementById('newTaskName').value = PRESETS[val].title;
-            document.getElementById('newTaskGold').value = PRESETS[val].gold;
-        }
-    }
-
-    // ANIMATION DE L'OR (Compteur)
-    function animateGold(target) {
-        const element = document.getElementById('goldDisplay');
-        const start = currentDisplayedGold;
-        const duration = 1000;
-        const startTime = performance.now();
-
-        function update(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // Easing (ralentir à la fin)
-            const ease = 1 - Math.pow(1 - progress, 3);
-            
-            currentDisplayedGold = Math.floor(start + (target - start) * ease);
-            element.innerText = currentDisplayedGold;
-
-            if (progress < 1) {
-                requestAnimationFrame(update);
-            } else {
-                element.classList.add('gold-bump'); // Petit saut à la fin
-                setTimeout(() => element.classList.remove('gold-bump'), 200);
-            }
-        }
-        requestAnimationFrame(update);
-    }
-
-    // EFFET DE CONFETTIS
-    function fireConfetti() {
-        confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#00f2ff', '#ffb700', '#ffffff'] // Bleu, Or, Blanc
-        });
-    }
-
-    function render(isInitialLoad = false) {
-        const currentUser = document.getElementById('userSelect').value;
-        const isAdmin = PARENTS.includes(currentUser);
+        // Quêtes
         const list = document.getElementById('questList');
         list.innerHTML = '';
-
         document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
 
-        if(!isAdmin) {
-            document.getElementById('playerStats').style.opacity = '1';
-            // Trigger animation or
-            animateGold(appData.users[currentUser].gold);
-            document.getElementById('levelDisplay').innerText = Math.floor(appData.users[currentUser].xp / 100) + 1;
-        } else {
-            document.getElementById('playerStats').style.opacity = '0';
-        }
+        if(appData.tasks.length === 0) list.innerHTML = `<div style="text-align:center; opacity:0.5; padding:20px">Aucune mission en cours</div>`;
 
-        if(appData.tasks.length === 0) list.innerHTML = `<div style="text-align:center; color:#555; padding:30px;">AUCUNE MISSION ACTIVE</div>`;
+        appData.tasks.forEach(task => {
+            if(task.status === 'done') return;
 
-        appData.tasks.forEach((task, index) => {
-            if(task.status === 'done') return; 
-
-            let statusHtml = `<span class="status-pill st-pending">EN ATTENTE</span>`;
-            let actionBtn = '';
-            let borderClass = '';
+            let badgeColor = "#555";
+            let statusText = "En Attente";
+            let actionBtn = "";
 
             if(task.status === 'review') {
-                statusHtml = `<span class="status-pill st-review">VÉRIFICATION</span>`;
-                borderClass = 'border-color: var(--accent-cyan);';
-                if(isAdmin) {
-                    actionBtn = `<button class="btn btn-approve" onclick="approveTask(${task.id})">✔ VALIDER (+${task.gold})</button>`;
-                } else {
-                    actionBtn = `<small style="color:var(--accent-cyan)">En attente de validation...</small>`;
-                }
+                badgeColor = "var(--accent-cyan)";
+                statusText = "Vérification...";
+                if(isAdmin) actionBtn = `<button class="btn btn-approve" onclick="approveTask(${task.id})">✔ Valider</button>`;
+                else actionBtn = `<small style="color:var(--accent-cyan)">Attente validation</small>`;
             } else {
-                if(currentUser === task.assignee) {
-                    actionBtn = `<button class="btn" onclick="completeTask(${task.id})">TERMINER MISSION</button>`;
-                } else if(isAdmin) {
-                    actionBtn = `<small style="color:#556">Assigné à : ${task.assignee}</small>`;
-                }
+                if(currentUser === task.assignee) actionBtn = `<button class="btn" onclick="completeTask(${task.id})">Terminer</button>`;
+                else if(isAdmin) actionBtn = `<small>Assigné: ${task.assignee}</small>`;
             }
 
-            const div = document.createElement('div');
-            div.className = 'quest-card';
-            if(task.status === 'review') div.style.borderLeftColor = 'var(--accent-cyan)';
+            const card = document.createElement('div');
+            card.className = 'quest-card';
+            if(task.status === 'review') card.style.borderColor = "var(--accent-cyan)";
             
-            // CASCADE : Ajoute un délai à chaque élément
-            div.style.animationDelay = `${index * 0.1}s`;
-            
-            div.innerHTML = `
-                <div class="quest-header">
-                    <div>
-                        <div class="quest-title">${task.title}</div>
-                        <div class="quest-meta"><span>Pour : ${task.assignee}</span></div>
+            card.innerHTML = `
+                <div>
+                    <div style="font-weight:bold; font-size:1.1rem">${task.title}</div>
+                    <div style="color:#aaa; font-size:0.9rem">
+                        ${task.assignee} | <span style="color:var(--accent-gold)">${task.gold} $</span>
                     </div>
-                    <span class="reward-pill">${task.gold} $</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                    ${statusHtml}
+                <div style="text-align:right">
+                    <div style="font-size:0.7rem; text-transform:uppercase; color:${badgeColor}; font-weight:bold; margin-bottom:5px">${statusText}</div>
                     ${actionBtn}
                 </div>
             `;
-            list.appendChild(div);
+            list.appendChild(card);
         });
     }
 
-    function showSuccess(msg) {
-        const popup = document.getElementById('successPopup');
-        popup.querySelector('h1').innerText = msg;
-        popup.classList.add('active');
-        fireConfetti(); // BOOM!
-        setTimeout(() => { popup.classList.remove('active'); }, 2500);
+    // --- ACTIONS (Mêmes qu'avant + Confetti) ---
+    async function syncData() {
+        await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(appData) });
     }
 
     function addTask() {
@@ -470,44 +462,44 @@ select option {
         const assignee = document.getElementById('newTaskAssignee').value;
         const gold = parseInt(document.getElementById('newTaskGold').value);
         if(!title) return;
-        
         appData.tasks.push({ id: Date.now(), title, assignee, gold, status: 'pending' });
-        document.getElementById('newTaskName').value = '';
-        document.getElementById('newTaskGold').value = '';
-        document.getElementById('taskPreset').value = ''; 
-        render();
-        syncData();
+        document.getElementById('newTaskName').value = "";
+        renderDashboard(); syncData();
     }
 
     function completeTask(id) {
-        const task = appData.tasks.find(t => t.id === id);
-        task.status = 'review';
-        showSuccess("Good Boy !");
-        render();
-        syncData();
+        appData.tasks.find(t=>t.id===id).status = 'review';
+        confetti({ particleCount: 50, origin: { y: 0.8 } });
+        renderDashboard(); syncData();
     }
 
     function approveTask(id) {
-        const task = appData.tasks.find(t => t.id === id);
-        task.status = 'done';
-        appData.users[task.assignee].gold += task.gold;
-        appData.users[task.assignee].xp += task.gold;
-        showSuccess("CONFIRMÉ !");
-        render();
-        syncData();
+        const t = appData.tasks.find(t=>t.id===id);
+        t.status = 'done';
+        appData.users[t.assignee].gold += t.gold;
+        appData.users[t.assignee].xp += t.gold;
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        renderDashboard(); syncData();
     }
 
     function buyItem(cost, item) {
-        const user = document.getElementById('userSelect').value;
-        if(PARENTS.includes(user)) return alert("Les parents ne consomment pas le butin.");
-        if(appData.users[user].gold >= cost) {
-            if(confirm(`Acheter : ${item} pour ${cost} OR ?`)) {
-                appData.users[user].gold -= cost;
-                showSuccess("ACHAT RÉUSSI !");
-                render();
-                syncData();
+        const u = appData.users[currentUser];
+        if(USERS_CONFIG[currentUser].isAdmin) return alert("Les parents ne jouent pas !");
+        if(u.gold >= cost) {
+            if(confirm(`Acheter ${item} ?`)) {
+                u.gold -= cost;
+                renderDashboard(); syncData();
+                confetti({ particleCount: 50 });
             }
-        } else { alert("Pas assez d'or !"); }
+        } else alert("Pas assez d'or !");
+    }
+
+    function applyPreset() {
+        const v = document.getElementById('taskPreset').value;
+        if(v && PRESETS[v]) {
+            document.getElementById('newTaskName').value = PRESETS[v].title;
+            document.getElementById('newTaskGold').value = PRESETS[v].gold;
+        }
     }
 
     init();
