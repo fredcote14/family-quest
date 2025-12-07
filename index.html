@@ -17,7 +17,18 @@
         .profile-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; max-width:400px; width:100%; padding:20px; }
         .profile-card { background:var(--bg-light); border:1px solid rgba(255,255,255,0.1); border-radius:15px; padding:20px; text-align:center; cursor:pointer; transition:0.2s; }
         .profile-card:hover { transform:scale(1.05); border-color:var(--accent-cyan); box-shadow:0 0 15px rgba(0,242,255,0.2); }
-        .avatar-circle { width:80px; height:80px; border-radius:50%; margin:0 auto 10px auto; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:bold; color:black; border:2px solid white; }
+        
+        /* PHOTOS DE PROFIL */
+        .avatar-img { 
+            width:90px; height:90px; 
+            border-radius:50%; 
+            margin:0 auto 10px auto; 
+            display:block; 
+            object-fit:cover; /* Recadre la photo sans l'écraser */
+            border:2px solid white; 
+            background-color: #333;
+        }
+        
         .profile-name { font-family:'Rajdhani'; font-size:1.2rem; font-weight:bold; margin-top:10px;}
 
         /* UI ELEMENTS */
@@ -52,19 +63,19 @@
     <h1 style="font-family:'Rajdhani'; letter-spacing:2px; color:var(--accent-cyan); margin-bottom:30px;">QUI ÊTES-VOUS ?</h1>
     <div class="profile-grid">
         <div class="profile-card" onclick="login('Olivier')">
-            <div class="avatar-circle" style="background:#00f2ff;">O</div>
+            <img src="./olivier.jpg" class="avatar-img" onerror="this.src='https://ui-avatars.com/api/?name=Olivier&background=00f2ff&color=000&size=128'">
             <div class="profile-name">Olivier</div>
         </div>
         <div class="profile-card" onclick="login('Alexis')">
-            <div class="avatar-circle" style="background:#00ff9d;">A</div>
+            <img src="./alexis.jpg" class="avatar-img" onerror="this.src='https://ui-avatars.com/api/?name=Alexis&background=00ff9d&color=000&size=128'">
             <div class="profile-name">Alexis</div>
         </div>
         <div class="profile-card" onclick="login('Fred')">
-            <div class="avatar-circle" style="background:#ffb700;">F</div>
+            <img src="./fred.jpg" class="avatar-img" onerror="this.src='https://ui-avatars.com/api/?name=Fred&background=ffb700&color=000&size=128'">
             <div class="profile-name">Fred (Admin)</div>
         </div>
         <div class="profile-card" onclick="login('Karine')">
-            <div class="avatar-circle" style="background:#ff0055;">K</div>
+            <img src="./karine.jpg" class="avatar-img" onerror="this.src='https://ui-avatars.com/api/?name=Karine&background=ff0055&color=fff&size=128'">
             <div class="profile-name">Karine (Admin)</div>
         </div>
     </div>
@@ -128,10 +139,10 @@
 
 <script>
     // ********************************************
-    // ZONE DE CONFIGURATION
+    // CONFIGURATION
     // ********************************************
     
-    // COLLEZ VOTRE LIEN GOOGLE SCRIPT ICI :
+    // TON URL GOOGLE SCRIPT EST DÉJÀ LÀ :
     const API_URL = "https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec"; 
 
     // CODE PIN POUR LES PARENTS
@@ -250,7 +261,7 @@
     
     function completeTask(id) { 
         appData.tasks.find(t=>t.id===id).status = 'review'; 
-        showSuccess("Good Boy !");
+        showSuccess("BEAU TRAVAIL !");
         renderDashboard(); syncData(); 
     }
     
