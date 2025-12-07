@@ -476,7 +476,7 @@
     function completeTask(id) {
         const task = appData.tasks.find(t => t.id === id);
         task.status = 'review';
-        showSuccess("BEAU TRAVAIL !");
+        showSuccess("Good Boy !");
         render();
         syncData();
     }
