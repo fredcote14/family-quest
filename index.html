@@ -248,7 +248,7 @@
 
 <script>
     // ********************************************
-    // COLLEZ VOTRE LIEN GOOGLE SCRIPT CI-DESSOUS
+    // YOUR GOOGLE SCRIPT URL IS SET CORRECTLY BELOW
     // ********************************************
     const API_URL = "https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec"; 
 
@@ -275,10 +275,7 @@
     };
 
     async function init() {
-        if(API_URL.includes("https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec")) { 
-            document.getElementById('loadingOverlay').innerHTML = "ERREUR: SYSTÈME HORS LIGNE<br><small>Mettre à jour l'URL dans le code</small>";
-            return; 
-        }
+        // I REMOVED THE IF STATEMENT THAT WAS CAUSING THE ERROR
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
@@ -287,7 +284,7 @@
             render();
         } catch(e) { 
             console.error(e);
-            document.getElementById('loadingOverlay').innerHTML = "ÉCHEC DE CONNEXION";
+            document.getElementById('loadingOverlay').innerHTML = "ÉCHEC DE CONNEXION<br><small>Vérifiez votre internet</small>";
         }
     }
 
