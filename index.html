@@ -8,311 +8,179 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --bg-deep:#050a14; --bg-light:#0f1c2e; --accent-cyan:#00f2ff; --accent-gold:#ffb700; --accent-green:#00ff9d; --accent-red:#ff0055; --text-main:#ffffff; --text-dim:#8b9bb4; }
-        body { font-family:'Exo 2',sans-serif; background:linear-gradient(135deg,var(--bg-deep) 0%,#1a2639 100%); color:var(--text-main); margin:0; padding:0; min-height:100vh; overflow-x:hidden; -webkit-tap-highlight-color:transparent; }
-        .container { max-width:1000px; margin:0 auto; padding:20px 20px 80px 20px; }
-        
-        /* LOGIN & PIN */
-        #loginScreen { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-deep); z-index:5000; display:flex; flex-direction:column; justify-content:center; align-items:center; }
-        .profile-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; max-width:400px; width:100%; padding:20px; }
-        .profile-card { background:var(--bg-light); border:1px solid rgba(255,255,255,0.1); border-radius:15px; padding:20px; text-align:center; cursor:pointer; transition:0.2s; }
-        .profile-card:hover { transform:scale(1.05); border-color:var(--accent-cyan); }
-        .avatar-img { width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent-cyan); margin-bottom:10px; background:#000; }
-        .profile-name { font-family:'Rajdhani'; font-size:1.2rem; font-weight:bold; }
-        
-        #pinModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:6000; display:none; justify-content:center; align-items:center; flex-direction:column; }
-        .pin-display { font-size:2rem; letter-spacing:10px; color:var(--accent-cyan); margin-bottom:20px; font-family:'Rajdhani'; min-height:40px; }
-        .numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
-        .num-btn { background:rgba(255,255,255,0.1); border:1px solid var(--accent-cyan); color:white; width:60px; height:60px; border-radius:50%; font-size:1.2rem; font-weight:bold; cursor:pointer; }
-        .num-btn:active { background:var(--accent-cyan); color:black; }
+        :root {
+            --bg-deep: #050a14;
+            --bg-light: #0f1c2e;
+            --accent-cyan: #00f2ff;
+            --accent-gold: #ffb700;
+            --accent-green: #00ff9d;
+            --text-main: #ffffff;
+            --text-dim: #8b9bb4;
+            --border-glow: rgba(0, 242, 255, 0.3);
+        }
 
-        /* UI */
-        .glass-panel { background:rgba(15,28,46,0.7); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:20px; margin-bottom:20px; box-shadow:0 10px 30px rgba(0,0,0,0.3); }
-        .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .current-user-pill { display:flex; align-items:center; gap:10px; background:rgba(0,242,255,0.1); padding:8px 15px; border-radius:30px; border:1px solid var(--accent-cyan); cursor:pointer; }
-        .mini-avatar { width:30px; height:30px; border-radius:50%; object-fit:cover; }
-        .dashboard { display:grid; grid-template-columns:1fr; gap:20px; }
-        @media (min-width:768px) { .dashboard { grid-template-columns:2fr 1fr; } }
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, var(--bg-deep) 0%, #1a2639 100%);
+            color: var(--text-main);
+            margin: 0; padding: 15px;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding-bottom: 50px; }
+
+        /* Panneaux */
+        .glass-panel {
+            background: rgba(15, 28, 46, 0.7); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px;
+            padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); margin-bottom: 24px;
+        }
+
+        /* Barre Stats */
+        .stats-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--accent-cyan); padding-bottom: 15px;
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px;
+        }
+
+        .user-select {
+            background: var(--bg-deep); color: var(--accent-cyan);
+            border: 1px solid var(--border-glow); padding: 12px 20px;
+            border-radius: 12px; font-family: 'Rajdhani', sans-serif;
+            font-weight: bold; font-size: 1.1rem; outline: none; width: 100%; max-width: 220px;
+        }
         
-        /* LISTS */
-        .leaderboard-row { display:flex; align-items:center; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); }
-        .rank-num { font-size:1.2rem; font-weight:bold; color:var(--accent-gold); width:30px; }
-        .lb-user { display:flex; align-items:center; gap:10px; flex-grow:1; }
-        .quest-card { background:linear-gradient(90deg,rgba(255,255,255,0.03) 0%,transparent 100%); border-left:4px solid var(--text-dim); padding:15px; margin-bottom:10px; border-radius:0 10px 10px 0; display:flex; justify-content:space-between; align-items:center; }
-        .btn { background:transparent; border:1px solid var(--accent-cyan); color:var(--accent-cyan); padding:8px 12px; border-radius:6px; font-weight:bold; text-transform:uppercase; font-size:0.8rem; cursor:pointer; }
-        .btn-approve { border-color:var(--accent-green); color:var(--accent-green); }
-        .shop-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:10px; }
-        .shop-item { background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); padding:10px; text-align:center; border-radius:10px; }
-        input, select { width:100%; padding:12px; margin:5px 0; background:#091220; border:1px solid #2a3b55; color:white; border-radius:8px; }
-        #loadingOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-deep); z-index:7000; display:flex; justify-content:center; align-items:center; color:var(--accent-cyan); flex-direction: column; gap: 10px;}
+        /* Correction fond noir pour le menu déroulant */
+        select option { background-color: #000000; color: #ffffff; }
+
+        .stat-box {
+            font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .level-badge {
+            background: linear-gradient(45deg, var(--accent-cyan), #0051ff);
+            padding: 5px 15px; border-radius: 8px; color: black; font-size: 1rem; text-transform: uppercase;
+        }
+        .gold-text { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 183, 0, 0.3); }
+
+        /* Dashboard */
+        .dashboard { display: grid; grid-template-columns: 1.8fr 1fr; gap: 24px; }
+        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
+
+        h2 {
+            font-family: 'Rajdhani', sans-serif; color: var(--accent-cyan);
+            text-transform: uppercase; letter-spacing: 2px; margin-top: 0;
+            font-size: 1.4rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 15px; margin-bottom: 20px;
+        }
+
+        /* Cartes */
+        .quest-card {
+            display: flex; flex-direction: column;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+            border-left: 4px solid var(--text-dim); margin-bottom: 15px;
+            padding: 18px; border-radius: 0 12px 12px 0; transition: transform 0.2s;
+        }
+        .quest-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .quest-title { font-size: 1.2rem; font-weight: 700; color: white; }
+        .quest-meta { color: var(--text-dim); font-size: 0.9rem; }
+        .reward-pill { background: rgba(255, 183, 0, 0.15); color: var(--accent-gold); padding: 4px 10px; border-radius: 20px; font-weight: bold; border: 1px solid rgba(255, 183, 0, 0.3); }
+
+        /* Boutons */
+        .btn {
+            background: var(--bg-deep); color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan); padding: 10px 20px;
+            font-family: 'Exo 2', sans-serif; border-radius: 8px;
+            cursor: pointer; text-transform: uppercase; font-weight: bold;
+            font-size: 0.85rem; width: 100%; transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.98); background: var(--accent-cyan); color: #000; }
+        .btn-approve { border-color: var(--accent-green); color: var(--accent-green); }
+        .btn-approve:active { background: var(--accent-green); color: black; }
+
+        /* Boutique */
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .shop-item { 
+            background: var(--bg-light); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 16px; padding: 20px; text-align: center;
+            display: flex; flex-direction: column; justify-content: space-between; height: 140px;
+        }
+        .shop-price { color: var(--accent-gold); font-weight: bold; font-size: 1.2rem; font-family: 'Rajdhani'; }
+
+        /* Inputs */
+        input, select {
+            width: 100%; padding: 14px; margin: 8px 0;
+            background: var(--bg-deep); border: 1px solid #334;
+            color: white; border-radius: 8px; box-sizing: border-box; font-size: 16px;
+        }
+        #adminPanel { border: 1px solid var(--accent-cyan); background: rgba(0, 242, 255, 0.03); }
+
+        /* Badges */
+        .status-pill { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .st-pending { background: #222; color: #777; border: 1px solid #444; }
+        .st-review { background: rgba(0, 242, 255, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+
+        /* POPUP SUCCESS */
+        #successPopup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(5, 10, 20, 0.95); border: 3px solid var(--accent-gold);
+            padding: 40px; border-radius: 20px; text-align: center; z-index: 3000;
+            box-shadow: 0 0 50px rgba(255, 183, 0, 0.4);
+            display: none; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-width: 250px;
+        }
+        #successPopup h1 { margin: 0; color: var(--accent-gold); font-family: 'Rajdhani'; font-size: 2rem; text-transform: uppercase; }
+        @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+
+        /* Loading */
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-deep); z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-family: 'Rajdhani'; color: var(--accent-cyan); gap: 20px;
+        }
+        .loader-ring { width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
+<div id="successPopup">
+    <h1>BEAU TRAVAIL !</h1>
+    <p style="color:#ccc">Mission Validée.</p>
+</div>
+
 <div id="loadingOverlay">
-    <div>CONNEXION AU QG...</div>
-    <div id="repairMsg" style="color:var(--accent-green); font-size:0.8rem; display:none;">RÉPARATION DES DONNÉES EN COURS...</div>
+    <div class="loader-ring"></div>
+    <div>INITIALISATION...</div>
 </div>
 
-<div id="loginScreen">
-    <h1 style="font-family:'Rajdhani'; letter-spacing:2px; color:var(--accent-cyan);">QUI ÊTES-VOUS ?</h1>
-    <div class="profile-grid" id="profileGrid"></div>
-</div>
-
-<div id="pinModal">
-    <h2 style="color:white; font-family:'Rajdhani'">CODE PIN REQUIS</h2>
-    <div class="pin-display" id="pinDisplay">_ _ _ _</div>
-    <div class="numpad">
-        <button class="num-btn" onclick="enterDigit(1)">1</button><button class="num-btn" onclick="enterDigit(2)">2</button><button class="num-btn" onclick="enterDigit(3)">3</button>
-        <button class="num-btn" onclick="enterDigit(4)">4</button><button class="num-btn" onclick="enterDigit(5)">5</button><button class="num-btn" onclick="enterDigit(6)">6</button>
-        <button class="num-btn" onclick="enterDigit(7)">7</button><button class="num-btn" onclick="enterDigit(8)">8</button><button class="num-btn" onclick="enterDigit(9)">9</button>
-        <button class="num-btn" style="border-color:var(--accent-red)" onclick="clearPin()">C</button>
-        <button class="num-btn" onclick="enterDigit(0)">0</button>
-        <button class="num-btn" style="border-color:var(--accent-green)" onclick="submitPin()">OK</button>
-    </div>
-    <button style="margin-top:20px; background:none; border:none; color:#666; text-decoration:underline" onclick="closePin()">Annuler</button>
-</div>
-
-<div class="container" id="mainApp" style="display:none;">
-    <div class="top-bar">
-        <div class="current-user-pill" onclick="logout()">
-            <img id="headerAvatar" src="" class="mini-avatar">
-            <span id="headerName" style="font-weight:bold">Nom</span>
-            <small style="opacity:0.7; margin-left:5px">(Déconnexion)</small>
+<div class="container">
+    <div class="glass-panel stats-bar">
+        <select id="userSelect" class="user-select" onchange="render()">
+            <option value="Olivier">👤 Olivier (12)</option>
+            <option value="Alexis">👤 Alexis (14)</option>
+            <option value="Fred">🛡️ Fred (Admin)</option>
+            <option value="Karine">🛡️ Karine (Admin)</option>
+        </select>
+        
+        <div id="playerStats" class="stat-box">
+            <span class="level-badge">NIV <span id="levelDisplay">1</span></span>
+            <span class="gold-text"><span id="goldDisplay">0</span> $ OR</span>
         </div>
-        <div style="text-align:right">
-            <div style="color:var(--accent-gold); font-weight:bold; font-size:1.2rem"><span id="headerGold">0</span> $ OR</div>
-            <div style="font-size:0.8rem; color:var(--text-dim)">Niveau <span id="headerLevel">1</span></div>
-        </div>
-    </div>
-
-    <div class="glass-panel">
-        <h3 style="margin:0 0 10px 0; color:var(--accent-gold); border-bottom:1px solid #333; padding-bottom:5px">🏆 CLASSEMENT</h3>
-        <div id="leaderboardList"></div>
     </div>
 
     <div class="dashboard">
         <div>
             <div class="glass-panel">
-                <h2 style="margin-top:0; color:var(--accent-cyan)">⚔️ Missions</h2>
+                <h2>⚔️ Quêtes Actives</h2>
                 <div id="questList"></div>
             </div>
 
-            <div id="adminPanel" class="glass-panel" style="display:none; border-color:var(--accent-green)">
-                <h3 style="margin-top:0; color:var(--accent-green)">+ AJOUTER MISSION</h3>
-                <select id="taskPreset" onchange="applyPreset()">
-                    <option value="">-- Modèles Rapides --</option>
-                    <option value="dish">🍽️ Vider lave-vaisselle (15 G)</option>
-                    <option value="trash">🗑️ Sortir poubelles (10 G)</option>
-                    <option value="room">🛏️ Ménage chambre (50 G)</option>
-                    <option value="snow">❄️ Pelleter l'entrée (100 G)</option>
-                    <option value="gear">🏒 Équipement hockey (25 G)</option>
-                    <option value="laundry">👕 Plier lavage (30 G)</option>
-                </select>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="newTaskName" placeholder="Titre...">
-                    <input type="number" id="newTaskGold" placeholder="$" style="width:80px">
-                </div>
-                <select id="newTaskAssignee">
-                    <option value="Olivier">Pour : Olivier</option>
-                    <option value="Alexis">Pour : Alexis</option>
-                </select>
-                <button class="btn" style="width:100%; margin-top:10px; background:var(--accent-green); color:black" onclick="addTask()">LANCER</button>
-            </div>
-        </div>
-
-        <div>
-            <div class="glass-panel">
-                <h2 style="margin-top:0; color:var(--accent-gold)">🛒 Boutique</h2>
-                <div class="shop-grid">
-                    <div class="shop-item"><b>1h Jeux</b><br><span style="color:gold">50 $</span><br><button class="btn" style="margin-top:5px" onclick="buyItem(50,'1h Jeux')">ACHETER</button></div>
-                    <div class="shop-item"><b>Sauter Tâche</b><br><span style="color:gold">200 $</span><br><button class="btn" style="margin-top:5px" onclick="buyItem(200,'Passe-Droit')">ACHETER</button></div>
-                    <div class="shop-item"><b>5$ Argent</b><br><span style="color:gold">500 $</span><br><button class="btn" style="margin-top:5px" onclick="buyItem(500,'5$ Argent')">ACHETER</button></div>
-                    <div class="shop-item"><b>Choix Souper</b><br><span style="color:gold">1000 $</span><br><button class="btn" style="margin-top:5px" onclick="buyItem(1000,'Choix Souper')">ACHETER</button></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- J'AI DÉJÀ MIS TON URL ICI, NE TOUCHE PAS ---
-    const API_URL = "https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec"; 
-
-    // TES PHOTOS SONT ICI
-    const CONFIG = {
-        "Olivier": { pin: null, avatar: "https://ui-avatars.com/api/?name=Olivier&background=00f2ff&color=000&size=128", isAdmin: false },
-        "Alexis":  { pin: null, avatar: "https://ui-avatars.com/api/?name=Alexis&background=00ff9d&color=000&size=128", isAdmin: false },
-        "Fred":    { pin: "1234", avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-1/527718589_10171696736605251_1331053584475097759_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=102&ccb=1-7&_nc_sid=e99d92&_nc_ohc=o07zJiHztkMQ7kNvwEHD79u&_nc_oc=Adk7OWDya1IBjzrp6ad6Xz1ndORiLEoLdasZm2bR53ywTNW-S7eEDKFU8vi8CE25T_U&_nc_zt=24&_nc_ht=scontent.fymq2-1.fna&_nc_gid=5ylIptMmSvvbb11nqRLBbQ&oh=00_AflOCvb0deId5q30t6HRLJqHS95_1ZF8iin6dkJfUP7opQ&oe=693B3ADF", isAdmin: true },
-        "Karine":  { pin: "1234", avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-6/523502028_10172130599825249_2579335258512020808_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=8xRDge3S9DQQ7kNvwHSD2Sv&_nc_oc=AdnLt_0Gs5-HDKRJ_ENuh6yjoIqdPMrjILZ_U8aYb5by_pThUgtUmBi3QguB0IbE7Bw&_nc_zt=23&_nc_ht=scontent.fymq2-1.fna&_nc_gid=OcjRtxyiDs9TBxAV7oQ0sA&oh=00_Afnluvs57hcbE9VxA_pFlur31R11yYVHnMa_Dt4aql9Hrg&oe=693B2E41", isAdmin: true }
-    };
-
-    const PRESETS = {
-        "dish": { title: "Vider le lave-vaisselle", gold: 15 },
-        "trash": { title: "Sortir les poubelles", gold: 10 },
-        "room": { title: "Ménage de la chambre", gold: 50 },
-        "snow": { title: "Pelleter l'entrée", gold: 100 },
-        "gear": { title: "Ranger l'équipement hockey", gold: 25 },
-        "laundry": { title: "Plier le lavage", gold: 30 }
-    };
-
-    let appData = { tasks: [], users: { "Olivier": {gold:0, xp:0}, "Alexis": {gold:0, xp:0}, "Fred": {gold:0, xp:0}, "Karine": {gold:0, xp:0} } };
-    let currentUser = null;
-    let currentPinInput = "";
-    let pendingUserLogin = null;
-
-    async function init() {
-        renderLoginScreen();
-        try {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            
-            // --- AUTO REPARATION ---
-            // Si les données reçues contiennent "Kid1" ou un utilisateur inconnu, on écrase tout.
-            if(data && data.users) {
-                const keys = Object.keys(data.users);
-                const hasOlivier = keys.includes("Olivier");
-                
-                if (!hasOlivier) {
-                    console.warn("Anciennes données détectées. Réinitialisation forcée...");
-                    document.getElementById('repairMsg').style.display = 'block';
-                    // On ne charge PAS les vieilles données. On force la sauvegarde des nouvelles par défaut.
-                    await syncData();
-                    document.getElementById('repairMsg').innerText = "RÉPARATION TERMINÉE !";
-                    setTimeout(() => { document.getElementById('loadingOverlay').style.display = 'none'; }, 1000);
-                    return;
-                }
-                appData = data;
-            }
-            document.getElementById('loadingOverlay').style.display = 'none';
-        } catch(e) { 
-            console.log("Mode Hors Ligne");
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-    }
-
-    // --- LE RESTE DU CODE ---
-    function renderLoginScreen() {
-        const grid = document.getElementById('profileGrid');
-        grid.innerHTML = "";
-        for (const [name, conf] of Object.entries(CONFIG)) {
-            const card = document.createElement('div');
-            card.className = 'profile-card';
-            card.innerHTML = `<img src="${conf.avatar}" class="avatar-img"><div class="profile-name">${name}</div>`;
-            card.onclick = () => attemptLogin(name);
-            grid.appendChild(card);
-        }
-    }
-
-    function attemptLogin(name) {
-        if (CONFIG[name].pin) {
-            pendingUserLogin = name;
-            currentPinInput = "";
-            updatePinDisplay();
-            document.getElementById('pinModal').style.display = 'flex';
-        } else {
-            completeLogin(name);
-        }
-    }
-
-    function enterDigit(d) { if(currentPinInput.length < 4) { currentPinInput += d; updatePinDisplay(); } }
-    function clearPin() { currentPinInput = ""; updatePinDisplay(); }
-    function closePin() { document.getElementById('pinModal').style.display = 'none'; pendingUserLogin = null; }
-    function updatePinDisplay() { document.getElementById('pinDisplay').innerText = "* ".repeat(currentPinInput.length) + "_ ".repeat(4 - currentPinInput.length); }
-    function submitPin() {
-        if (currentPinInput === CONFIG[pendingUserLogin].pin) { closePin(); completeLogin(pendingUserLogin); } else { alert("CODE INCORRECT"); currentPinInput = ""; updatePinDisplay(); }
-    }
-    function completeLogin(name) {
-        currentUser = name;
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('headerName').innerText = name;
-        document.getElementById('headerAvatar').src = CONFIG[name].avatar;
-        renderDashboard();
-    }
-    function logout() { currentUser = null; document.getElementById('mainApp').style.display = 'none'; document.getElementById('loginScreen').style.display = 'flex'; }
-
-    function renderDashboard() {
-        if (!currentUser) return;
-        const isAdmin = CONFIG[currentUser].isAdmin;
-        const userData = appData.users[currentUser] || {gold:0, xp:0};
-
-        if(!isAdmin) {
-            document.getElementById('headerGold').innerText = userData.gold;
-            document.getElementById('headerLevel').innerText = Math.floor(userData.xp / 100) + 1;
-        } else {
-             document.getElementById('headerGold').innerText = "-";
-             document.getElementById('headerLevel').innerText = "ADMIN";
-        }
-
-        const sortedUsers = Object.keys(appData.users)
-            .filter(u => CONFIG[u] && !CONFIG[u].isAdmin) 
-            .sort((a,b) => appData.users[b].xp - appData.users[a].xp);
-        
-        let lbHtml = "";
-        sortedUsers.forEach((u, index) => {
-            let trophy = index === 0 ? "👑" : (index + 1) + ".";
-            let avatar = CONFIG[u] ? CONFIG[u].avatar : "";
-            lbHtml += `<div class="leaderboard-row"><div class="rank-num">${trophy}</div><div class="lb-user"><img src="${avatar}" class="mini-avatar"><span>${u}</span></div><div class="lb-score">XP: ${appData.users[u].xp}</div></div>`;
-        });
-        document.getElementById('leaderboardList').innerHTML = lbHtml;
-
-        const list = document.getElementById('questList');
-        list.innerHTML = '';
-        document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
-
-        if(appData.tasks.length === 0) list.innerHTML = `<div style="text-align:center; opacity:0.5; padding:20px">Aucune mission en cours</div>`;
-
-        appData.tasks.forEach(task => {
-            if(task.status === 'done') return;
-            let badgeColor="#555"; let statusText="En Attente"; let actionBtn="";
-            if(task.status === 'review') {
-                badgeColor="var(--accent-cyan)"; statusText="Vérification...";
-                if(isAdmin) actionBtn = `<button class="btn btn-approve" onclick="approveTask(${task.id})">✔ Valider</button>`;
-                else actionBtn = `<small style="color:var(--accent-cyan)">Attente validation</small>`;
-            } else {
-                if(currentUser === task.assignee) actionBtn = `<button class="btn" onclick="completeTask(${task.id})">Terminer</button>`;
-                else if(isAdmin) actionBtn = `<small>Assigné: ${task.assignee}</small>`;
-            }
-            const card = document.createElement('div');
-            card.className = 'quest-card';
-            if(task.status === 'review') card.style.borderColor = "var(--accent-cyan)";
-            card.innerHTML = `<div><div style="font-weight:bold; font-size:1.1rem">${task.title}</div><div style="color:#aaa; font-size:0.9rem">${task.assignee} | <span style="color:var(--accent-gold)">${task.gold} $</span></div></div><div style="text-align:right"><div style="font-size:0.7rem; text-transform:uppercase; color:${badgeColor}; font-weight:bold; margin-bottom:5px">${statusText}</div>${actionBtn}</div>`;
-            list.appendChild(card);
-        });
-    }
-
-    async function syncData() {
-        await fetch(API_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(appData) });
-    }
-
-    function addTask() {
-        const title = document.getElementById('newTaskName').value;
-        const assignee = document.getElementById('newTaskAssignee').value;
-        const gold = parseInt(document.getElementById('newTaskGold').value);
-        if(!title) return;
-        appData.tasks.push({ id: Date.now(), title, assignee, gold, status: 'pending' });
-        document.getElementById('newTaskName').value = "";
-        renderDashboard(); syncData();
-    }
-    function completeTask(id) { appData.tasks.find(t=>t.id===id).status = 'review'; try{confetti({particleCount:50,origin:{y:0.8}});}catch(e){} renderDashboard(); syncData(); }
-    function approveTask(id) { 
-        const t=appData.tasks.find(t=>t.id===id); t.status='done'; 
-        if(appData.users[t.assignee]) { appData.users[t.assignee].gold+=t.gold; appData.users[t.assignee].xp+=t.gold; }
-        try{confetti({particleCount:150,spread:70,origin:{y:0.6}});}catch(e){} renderDashboard(); syncData(); 
-    }
-    function buyItem(cost, item) {
-        const u = appData.users[currentUser];
-        if(CONFIG[currentUser].isAdmin) return alert("Les parents ne jouent pas !");
-        if(u.gold >= cost) {
-            if(confirm(`Acheter ${item} ?`)) { u.gold -= cost; renderDashboard(); syncData(); try{confetti({particleCount:50});}catch(e){} }
-        } else alert("Pas assez d'or !");
-    }
-    function applyPreset() {
-        const v = document.getElementById('taskPreset').value;
-        if(v && PRESETS[v]) { document.getElementById('newTaskName').value = PRESETS[v].title; document.getElementById('newTaskGold').value = PRESETS[v].gold; }
-    }
-    init();
-</script>
-</body>
-</html>
+            <div id="adminPanel" class="glass-panel" style="display:none;">
+                <h3 style="margin-top:0; color:var(--accent-cyan); font-family:'Rajdhani'">+ NOUVELLE MISSION</h3>
+                <label style="color:var(--text-dim); font-size:0.8rem; margin-bottom:5px; display:block;">Modèles Rapides :</label>
+                <select id="taskPreset" onchange="applyPreset()" style="background: #091220; border-color: #2a3b55;">
+                    <option value="">
