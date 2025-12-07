@@ -239,7 +239,7 @@
         document.getElementById('newTaskName').value = ''; document.getElementById('newTaskGold').value = ''; document.getElementById('taskPreset').value = ''; 
         render(); syncData();
     }
-    function completeTask(id) { const task = appData.tasks.find(t => t.id === id); task.status = 'review'; showSuccess("BEAU TRAVAIL !"); render(); syncData(); }
+    function completeTask(id) { const task = appData.tasks.find(t => t.id === id); task.status = 'review'; showSuccess("Good Job !"); render(); syncData(); }
     function approveTask(id) { 
         const task = appData.tasks.find(t => t.id === id); task.status = 'done'; 
         if(appData.users[task.assignee]) { appData.users[task.assignee].gold += task.gold; appData.users[task.assignee].xp += task.gold; }
