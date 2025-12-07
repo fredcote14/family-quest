@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Quest Board (Online)</title>
+    <style>
+        :root { --bg: #121212; --card-bg: #1e1e2e; --primary: #bb86fc; --secondary: #03dac6; --gold: #ffd700; --text: #e0e0e0; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .stats-bar { display: flex; justify-content: space-between; background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
+        .dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
+        .quest-card { background: var(--card-bg); padding: 15px; border-radius: 10px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-action { background: var(--secondary); color: #000; }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .shop-item { background: #252535; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #444; }
+        input, select { padding: 10px; margin: 5px 0; border-radius: 5px; background: #121212; color: white; border: 1px solid #555; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Status Badges */
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .status-pending { background: #333; color: #aaa; }
+        .status-review { background: var(--primary); color: #000; }
+        .status-done { background: var(--secondary); color: #000; }
+    </style>
+</head>
+<body>
+
+<div class="stats-bar">
+    <div>
+        <select id="userSelect" style="padding:10px;" onchange="render()">
+            <option value="Kid1">Kid 1 (14yo)</option>
+            <option value="Kid2">Kid 2 (12yo)</option>
+            <option value="Parent">Parent (Admin)</option>
+        </select>
+        <span id="loadingIndicator" style="display:none; margin-left:10px;">🔄 Saving...</span>
+    </div>
+    <div id="playerStats">
+        <span style="color:var(--secondary)">LVL <span id="levelDisplay">1</span></span> | 
+        <span style="color:var(--gold)">🪙 <span id="goldDisplay">0</span></span>
+    </div>
+</div>
+
+<div class="dashboard">
+    <div>
+        <h2>⚔️ Active Quests</h2>
+        <div id="questList"></div>
+        
+        <div style="margin-top:20px; background:#252535; padding:20px; border-radius:10px;">
+            <h3>+ Assign Quest</h3>
+            <input type="text" id="newTaskName" placeholder="Quest Name">
+            <select id="newTaskAssignee"><option value="Kid1">Kid 1</option><option value="Kid2">Kid 2</option></select>
+            <input type="number" id="newTaskGold" placeholder="Gold" value="10" style="width:60px">
+            <button class="btn btn-action" onclick="addTask()">Add</button>
+        </div>
+    </div>
+    
+    <div>
+        <h2>🛒 Rewards Shop</h2>
+        <div class="shop-grid">
+            <div class="shop-item"><h4>1hr Gaming</h4><div style="color:var(--gold)">🪙 50</div><button class="btn btn-action" onclick="buyItem(50, '1hr Gaming')">Buy</button></div>
+            <div class="shop-item"><h4>Skip Chore</h4><div style="color:var(--gold)">🪙 200</div><button class="btn btn-action" onclick="buyItem(200, 'Skip Chore')">Buy</button></div>
+            <div class="shop-item"><h4>$5 Cash</h4><div style="color:var(--gold)">🪙 500</div><button class="btn btn-action" onclick="buyItem(500, '$5 Cash')">Buy</button></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // *** PASTE YOUR GOOGLE SCRIPT URL HERE ***
+    const API_URL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE"; 
+
+    let appData = { tasks: [], users: { "Kid1": {gold:0, xp:0}, "Kid2": {gold:0, xp:0}, "Parent": {gold:0, xp:0} } };
+
+    async function init() {
+        if(API_URL.includes("PASTE_YOUR")) { alert("Please edit the HTML file and paste your Google Script URL!"); return; }
+        document.getElementById('questList').innerHTML = '<div class="loader"></div> Loading Quests...';
+        try {
+            const res = await fetch(API_URL);
+            appData = await res.json();
+            render();
+        } catch(e) { alert("Error loading data: " + e); }
+    }
+
+    async function syncData() {
+        document.getElementById('loadingIndicator').style.display = 'inline';
+        // We send the whole state to be saved (simple approach)
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // standard hack for Google Apps Script simple triggers
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appData)
+        });
+        document.getElementById('loadingIndicator').style.display = 'none';
+    }
+
+    function render() {
+        const currentUser = document.getElementById('userSelect').value;
+        const list = document.getElementById('questList');
+        list.innerHTML = '';
+
+        // Stats
+        if(currentUser !== 'Parent') {
+            document.getElementById('playerStats').style.display = 'block';
+            document.getElementById('goldDisplay').innerText = appData.users[currentUser].gold;
+            document.getElementById('levelDisplay').innerText = Math.floor(appData.users[currentUser].xp / 100) + 1;
+        } else {
+            document.getElementById('playerStats').style.display = 'none';
+        }
+
+        appData.tasks.forEach(task => {
+            if(task.status === 'done') return; // Hide completed
+
+            let badge = `<span class="status-badge status-pending">Pending</span>`;
+            let btn = '';
+
+            if(task.status === 'review') {
+                badge = `<span class="status-badge status-review">In Review</span>`;
+                if(currentUser === 'Parent') btn = `<button class="btn btn-action" style="background:var(--gold)" onclick="approveTask(${task.id})">✔ Approve</button>`;
+                else btn = `<small>Waiting for Parent...</small>`;
+            } else {
+                if(currentUser === task.assignee) btn = `<button class="btn btn-action" onclick="completeTask(${task.id})">Complete</button>`;
+                else if(currentUser === 'Parent') btn = `<small>Assigned to ${task.assignee}</small>`;
+            }
+
+            const div = document.createElement('div');
+            div.className = 'quest-card';
+            div.innerHTML = `
+                <div><h3>${task.title}</h3><small style="color:#888">Reward: 🪙 ${task.gold} | ${task.assignee}</small></div>
+                <div style="text-align:right">${badge}<br><div style="margin-top:5px">${btn}</div></div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function addTask() {
+        const title = document.getElementById('newTaskName').value;
+        const assignee = document.getElementById('newTaskAssignee').value;
+        const gold = parseInt(document.getElementById('newTaskGold').value);
+        if(!title) return;
+        
+        appData.tasks.push({ id: Date.now(), title, assignee, gold, status: 'pending' });
+        document.getElementById('newTaskName').value = '';
+        render();
+        syncData();
+    }
+
+    function completeTask(id) {
+        const task = appData.tasks.find(t => t.id === id);
+        task.status = 'review';
+        render();
+        syncData();
+    }
+
+    function approveTask(id) {
+        const task = appData.tasks.find(t => t.id === id);
+        task.status = 'done';
+        appData.users[task.assignee].gold += task.gold;
+        appData.users[task.assignee].xp += task.gold;
+        render();
+        syncData();
+    }
+
+    function buyItem(cost, item) {
+        const user = document.getElementById('userSelect').value;
+        if(user === 'Parent') return alert("Parents don't buy rewards!");
+        if(appData.users[user].gold >= cost) {
+            if(confirm(`Buy ${item}?`)) {
+                appData.users[user].gold -= cost;
+                render();
+                syncData();
+                alert(`Purchased ${item}! Show this to your parents.`);
+            }
+        } else { alert("Not enough Gold!"); }
+    }
+
+    init();
+</script>
+</body>
+</html>
