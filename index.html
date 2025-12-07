@@ -35,7 +35,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Container styling */
         .container { max-width: 1100px; margin: 0 auto; }
 
         /* Glassmorphism Cards */
@@ -139,49 +138,20 @@
             box-shadow: 0 0 20px var(--neon-green);
         }
 
-        .btn-approve {
-            color: var(--neon-gold);
-            border-color: var(--neon-gold);
-        }
-        .btn-approve:hover {
-            background: var(--neon-gold);
-            color: black;
-            box-shadow: 0 0 20px var(--neon-gold);
-        }
+        .btn-approve { color: var(--neon-gold); border-color: var(--neon-gold); }
+        .btn-approve:hover { background: var(--neon-gold); color: black; box-shadow: 0 0 20px var(--neon-gold); }
 
         /* Shop Grid */
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-        }
-
-        .shop-item {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .shop-item:hover {
-            border-color: var(--neon-gold);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-        }
-
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .shop-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; }
+        .shop-item:hover { border-color: var(--neon-gold); box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
         .shop-price { color: var(--neon-gold); font-weight: bold; display: block; margin: 10px 0; font-family: 'Orbitron'; }
 
         /* Inputs */
         input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #444;
-            color: white;
-            border-radius: 6px;
-            box-sizing: border-box;
+            width: 100%; padding: 12px; margin: 8px 0;
+            background: rgba(0,0,0,0.5); border: 1px solid #444;
+            color: white; border-radius: 6px; box-sizing: border-box;
         }
         input:focus { border-color: var(--neon-blue); outline: none; box-shadow: 0 0 8px var(--neon-blue); }
 
@@ -190,13 +160,11 @@
         .badge-pending { background: rgba(255,255,255,0.1); color: #888; border: 1px solid #444; }
         .badge-review { background: rgba(188, 19, 254, 0.2); color: var(--neon-purple); border: 1px solid var(--neon-purple); }
 
-        /* Loading */
         #loadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 1000;
             display: flex; justify-content: center; align-items: center;
-            font-family: 'Orbitron'; color: var(--neon-blue);
-            backdrop-filter: blur(5px);
+            font-family: 'Orbitron'; color: var(--neon-blue); backdrop-filter: blur(5px);
         }
     </style>
 </head>
@@ -230,10 +198,24 @@
 
             <div id="adminPanel" class="glass-panel" style="border-color: var(--neon-green);">
                 <h3 style="margin-top:0; color:var(--neon-green)">+ NEW MISSION UPLOAD</h3>
+                
+                <label style="color:#aaa; font-size:0.8rem;">Quick Select Mission:</label>
+                <select id="taskPreset" onchange="applyPreset()" style="border-color: var(--neon-green); color: var(--neon-green);">
+                    <option value="">-- Choose a Standard Mission --</option>
+                    <option value="dish">🍽️ Empty Dishwasher (15 G)</option>
+                    <option value="trash">🗑️ Take out Trash (10 G)</option>
+                    <option value="room">🛏️ Clean Bedroom (50 G)</option>
+                    <option value="vacuum">🧹 Vacuum Living Room (20 G)</option>
+                    <option value="laundry">👕 Fold Laundry (30 G)</option>
+                    <option value="dog">🐕 Walk the Dog (25 G)</option>
+                    <option value="table">🍽️ Set/Clear Table (10 G)</option>
+                </select>
+
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="newTaskName" placeholder="Mission Objective...">
                     <input type="number" id="newTaskGold" placeholder="$$" style="width:80px">
                 </div>
+                
                 <select id="newTaskAssignee">
                     <option value="Olivier">Assign to: Olivier</option>
                     <option value="Alexis">Assign to: Alexis</option>
@@ -247,23 +229,19 @@
                 <h2>🛒 Loot Crate</h2>
                 <div class="shop-grid">
                     <div class="shop-item">
-                        <h4>1hr Gaming</h4>
-                        <span class="shop-price">50 G</span>
+                        <h4>1hr Gaming</h4><span class="shop-price">50 G</span>
                         <button class="btn" onclick="buyItem(50, '1hr Gaming')">CLAIM</button>
                     </div>
                     <div class="shop-item">
-                        <h4>Skip Chore</h4>
-                        <span class="shop-price">200 G</span>
+                        <h4>Skip Chore</h4><span class="shop-price">200 G</span>
                         <button class="btn" onclick="buyItem(200, 'Skip Chore')">CLAIM</button>
                     </div>
                     <div class="shop-item">
-                        <h4>$5 Cash</h4>
-                        <span class="shop-price">500 G</span>
+                        <h4>$5 Cash</h4><span class="shop-price">500 G</span>
                         <button class="btn" onclick="buyItem(500, '$5 Cash')">CLAIM</button>
                     </div>
                      <div class="shop-item">
-                        <h4>Fast Food</h4>
-                        <span class="shop-price">1000 G</span>
+                        <h4>Fast Food</h4><span class="shop-price">1000 G</span>
                         <button class="btn" onclick="buyItem(1000, 'Fast Food')">CLAIM</button>
                     </div>
                 </div>
@@ -279,6 +257,18 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec"; 
 
     const PARENTS = ["Fred", "Karine"];
+    
+    // PRESET DATA
+    const PRESETS = {
+        "dish": { title: "Empty Dishwasher", gold: 15 },
+        "trash": { title: "Take out Trash", gold: 10 },
+        "room": { title: "Clean Bedroom", gold: 50 },
+        "vacuum": { title: "Vacuum Living Room", gold: 20 },
+        "laundry": { title: "Fold Laundry", gold: 30 },
+        "dog": { title: "Walk the Dog", gold: 25 },
+        "table": { title: "Set/Clear Table", gold: 10 }
+    };
+
     let appData = { 
         tasks: [], 
         users: { 
@@ -294,12 +284,10 @@
             document.getElementById('loadingOverlay').innerHTML = "ERROR: SYSTEM OFFLINE<br><small>Update API URL in Code</small>";
             return; 
         }
-        
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
             if(data && data.users) appData = data;
-            
             document.getElementById('loadingOverlay').style.display = 'none';
             render();
         } catch(e) { 
@@ -309,7 +297,6 @@
     }
 
     async function syncData() {
-        // Show a small saving indicator if desired, or just silent save
         await fetch(API_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -318,16 +305,23 @@
         });
     }
 
+    // NEW FUNCTION: Handle Preset Selection
+    function applyPreset() {
+        const val = document.getElementById('taskPreset').value;
+        if (val && PRESETS[val]) {
+            document.getElementById('newTaskName').value = PRESETS[val].title;
+            document.getElementById('newTaskGold').value = PRESETS[val].gold;
+        }
+    }
+
     function render() {
         const currentUser = document.getElementById('userSelect').value;
         const isAdmin = PARENTS.includes(currentUser);
         const list = document.getElementById('questList');
         list.innerHTML = '';
 
-        // Toggle Admin Panel
         document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
 
-        // Stats
         if(!isAdmin) {
             document.getElementById('playerStats').style.opacity = '1';
             document.getElementById('goldDisplay').innerText = appData.users[currentUser].gold;
@@ -336,7 +330,6 @@
             document.getElementById('playerStats').style.opacity = '0';
         }
 
-        // Render Tasks
         if(appData.tasks.length === 0) list.innerHTML = `<div style="text-align:center; color:#555; padding:20px;">NO ACTIVE MISSIONS</div>`;
 
         appData.tasks.forEach(task => {
@@ -384,7 +377,11 @@
         if(!title) return;
         
         appData.tasks.push({ id: Date.now(), title, assignee, gold, status: 'pending' });
+        // Reset inputs
         document.getElementById('newTaskName').value = '';
+        document.getElementById('newTaskGold').value = '';
+        document.getElementById('taskPreset').value = ''; // Reset dropdown
+        
         render();
         syncData();
     }
