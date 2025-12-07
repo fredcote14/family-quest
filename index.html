@@ -12,15 +12,14 @@
         body { font-family:'Exo 2',sans-serif; background:linear-gradient(135deg,var(--bg-deep) 0%,#1a2639 100%); color:var(--text-main); margin:0; padding:0; min-height:100vh; overflow-x:hidden; -webkit-tap-highlight-color:transparent; }
         .container { max-width:1000px; margin:0 auto; padding:20px 20px 80px 20px; }
         
-        /* LOGIN */
+        /* LOGIN & PIN */
         #loginScreen { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-deep); z-index:5000; display:flex; flex-direction:column; justify-content:center; align-items:center; }
         .profile-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; max-width:400px; width:100%; padding:20px; }
         .profile-card { background:var(--bg-light); border:1px solid rgba(255,255,255,0.1); border-radius:15px; padding:20px; text-align:center; cursor:pointer; transition:0.2s; }
         .profile-card:hover { transform:scale(1.05); border-color:var(--accent-cyan); }
         .avatar-img { width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent-cyan); margin-bottom:10px; background:#000; }
         .profile-name { font-family:'Rajdhani'; font-size:1.2rem; font-weight:bold; }
-
-        /* PIN MODAL */
+        
         #pinModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:6000; display:none; justify-content:center; align-items:center; flex-direction:column; }
         .pin-display { font-size:2rem; letter-spacing:10px; color:var(--accent-cyan); margin-bottom:20px; font-family:'Rajdhani'; min-height:40px; }
         .numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
@@ -35,24 +34,25 @@
         .dashboard { display:grid; grid-template-columns:1fr; gap:20px; }
         @media (min-width:768px) { .dashboard { grid-template-columns:2fr 1fr; } }
         
-        /* LEADERBOARD & CARDS */
+        /* LISTS */
         .leaderboard-row { display:flex; align-items:center; justify-content:space-between; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); }
         .rank-num { font-size:1.2rem; font-weight:bold; color:var(--accent-gold); width:30px; }
         .lb-user { display:flex; align-items:center; gap:10px; flex-grow:1; }
-        .lb-score { font-family: 'Rajdhani'; font-weight:bold; color:var(--accent-cyan); }
-        
         .quest-card { background:linear-gradient(90deg,rgba(255,255,255,0.03) 0%,transparent 100%); border-left:4px solid var(--text-dim); padding:15px; margin-bottom:10px; border-radius:0 10px 10px 0; display:flex; justify-content:space-between; align-items:center; }
         .btn { background:transparent; border:1px solid var(--accent-cyan); color:var(--accent-cyan); padding:8px 12px; border-radius:6px; font-weight:bold; text-transform:uppercase; font-size:0.8rem; cursor:pointer; }
         .btn-approve { border-color:var(--accent-green); color:var(--accent-green); }
         .shop-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:10px; }
         .shop-item { background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); padding:10px; text-align:center; border-radius:10px; }
         input, select { width:100%; padding:12px; margin:5px 0; background:#091220; border:1px solid #2a3b55; color:white; border-radius:8px; }
-        #loadingOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-deep); z-index:7000; display:flex; justify-content:center; align-items:center; color:var(--accent-cyan); }
+        #loadingOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-deep); z-index:7000; display:flex; justify-content:center; align-items:center; color:var(--accent-cyan); flex-direction: column; gap: 10px;}
     </style>
 </head>
 <body>
 
-<div id="loadingOverlay">CHARGEMENT...</div>
+<div id="loadingOverlay">
+    <div>CONNEXION AU QG...</div>
+    <div id="repairMsg" style="color:var(--accent-green); font-size:0.8rem; display:none;">RÉPARATION DES DONNÉES EN COURS...</div>
+</div>
 
 <div id="loginScreen">
     <h1 style="font-family:'Rajdhani'; letter-spacing:2px; color:var(--accent-cyan);">QUI ÊTES-VOUS ?</h1>
@@ -136,33 +136,15 @@
 </div>
 
 <script>
-    // ********************************************
-    // ZONE DE CONFIGURATION
-    // ********************************************
-    
+    // --- J'AI DÉJÀ MIS TON URL ICI, NE TOUCHE PAS ---
     const API_URL = "https://script.google.com/macros/s/AKfycbw18pkHozXYVYiZMGzYp7lWL66bSrg91LrC2TsW669H8kcNRSvCnnbaN03m5TBXcCa1/exec"; 
 
+    // TES PHOTOS SONT ICI
     const CONFIG = {
-        "Olivier": { 
-            pin: null, 
-            avatar: "https://ui-avatars.com/api/?name=Olivier&background=00f2ff&color=000&size=128", 
-            isAdmin: false 
-        },
-        "Alexis": { 
-            pin: null, 
-            avatar: "https://ui-avatars.com/api/?name=Alexis&background=00ff9d&color=000&size=128", 
-            isAdmin: false 
-        },
-        "Fred": { 
-            pin: "1111", 
-            avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-1/527718589_10171696736605251_1331053584475097759_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=102&ccb=1-7&_nc_sid=e99d92&_nc_ohc=o07zJiHztkMQ7kNvwEHD79u&_nc_oc=Adk7OWDya1IBjzrp6ad6Xz1ndORiLEoLdasZm2bR53ywTNW-S7eEDKFU8vi8CE25T_U&_nc_zt=24&_nc_ht=scontent.fymq2-1.fna&_nc_gid=5ylIptMmSvvbb11nqRLBbQ&oh=00_AflOCvb0deId5q30t6HRLJqHS95_1ZF8iin6dkJfUP7opQ&oe=693B3ADF", 
-            isAdmin: true 
-        },
-        "Karine": { 
-            pin: "1234", 
-            avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-6/523502028_10172130599825249_2579335258512020808_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=8xRDge3S9DQQ7kNvwHSD2Sv&_nc_oc=AdnLt_0Gs5-HDKRJ_ENuh6yjoIqdPMrjILZ_U8aYb5by_pThUgtUmBi3QguB0IbE7Bw&_nc_zt=23&_nc_ht=scontent.fymq2-1.fna&_nc_gid=OcjRtxyiDs9TBxAV7oQ0sA&oh=00_Afnluvs57hcbE9VxA_pFlur31R11yYVHnMa_Dt4aql9Hrg&oe=693B2E41", 
-            isAdmin: true 
-        }
+        "Olivier": { pin: null, avatar: "https://ui-avatars.com/api/?name=Olivier&background=00f2ff&color=000&size=128", isAdmin: false },
+        "Alexis":  { pin: null, avatar: "https://ui-avatars.com/api/?name=Alexis&background=00ff9d&color=000&size=128", isAdmin: false },
+        "Fred":    { pin: "1234", avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-1/527718589_10171696736605251_1331053584475097759_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=102&ccb=1-7&_nc_sid=e99d92&_nc_ohc=o07zJiHztkMQ7kNvwEHD79u&_nc_oc=Adk7OWDya1IBjzrp6ad6Xz1ndORiLEoLdasZm2bR53ywTNW-S7eEDKFU8vi8CE25T_U&_nc_zt=24&_nc_ht=scontent.fymq2-1.fna&_nc_gid=5ylIptMmSvvbb11nqRLBbQ&oh=00_AflOCvb0deId5q30t6HRLJqHS95_1ZF8iin6dkJfUP7opQ&oe=693B3ADF", isAdmin: true },
+        "Karine":  { pin: "1234", avatar: "https://scontent.fymq2-1.fna.fbcdn.net/v/t39.30808-6/523502028_10172130599825249_2579335258512020808_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=8xRDge3S9DQQ7kNvwHSD2Sv&_nc_oc=AdnLt_0Gs5-HDKRJ_ENuh6yjoIqdPMrjILZ_U8aYb5by_pThUgtUmBi3QguB0IbE7Bw&_nc_zt=23&_nc_ht=scontent.fymq2-1.fna&_nc_gid=OcjRtxyiDs9TBxAV7oQ0sA&oh=00_Afnluvs57hcbE9VxA_pFlur31R11yYVHnMa_Dt4aql9Hrg&oe=693B2E41", isAdmin: true }
     };
 
     const PRESETS = {
@@ -174,8 +156,6 @@
         "laundry": { title: "Plier le lavage", gold: 30 }
     };
 
-    // ********************************************
-
     let appData = { tasks: [], users: { "Olivier": {gold:0, xp:0}, "Alexis": {gold:0, xp:0}, "Fred": {gold:0, xp:0}, "Karine": {gold:0, xp:0} } };
     let currentUser = null;
     let currentPinInput = "";
@@ -186,11 +166,32 @@
         try {
             const res = await fetch(API_URL);
             const data = await res.json();
-            if(data && data.users) appData = data;
-        } catch(e) { console.log("Offline mode"); }
-        document.getElementById('loadingOverlay').style.display = 'none';
+            
+            // --- AUTO REPARATION ---
+            // Si les données reçues contiennent "Kid1" ou un utilisateur inconnu, on écrase tout.
+            if(data && data.users) {
+                const keys = Object.keys(data.users);
+                const hasOlivier = keys.includes("Olivier");
+                
+                if (!hasOlivier) {
+                    console.warn("Anciennes données détectées. Réinitialisation forcée...");
+                    document.getElementById('repairMsg').style.display = 'block';
+                    // On ne charge PAS les vieilles données. On force la sauvegarde des nouvelles par défaut.
+                    await syncData();
+                    document.getElementById('repairMsg').innerText = "RÉPARATION TERMINÉE !";
+                    setTimeout(() => { document.getElementById('loadingOverlay').style.display = 'none'; }, 1000);
+                    return;
+                }
+                appData = data;
+            }
+            document.getElementById('loadingOverlay').style.display = 'none';
+        } catch(e) { 
+            console.log("Mode Hors Ligne");
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
     }
 
+    // --- LE RESTE DU CODE ---
     function renderLoginScreen() {
         const grid = document.getElementById('profileGrid');
         grid.innerHTML = "";
@@ -218,18 +219,9 @@
     function clearPin() { currentPinInput = ""; updatePinDisplay(); }
     function closePin() { document.getElementById('pinModal').style.display = 'none'; pendingUserLogin = null; }
     function updatePinDisplay() { document.getElementById('pinDisplay').innerText = "* ".repeat(currentPinInput.length) + "_ ".repeat(4 - currentPinInput.length); }
-    
     function submitPin() {
-        if (currentPinInput === CONFIG[pendingUserLogin].pin) {
-            closePin();
-            completeLogin(pendingUserLogin);
-        } else {
-            alert("CODE INCORRECT");
-            currentPinInput = "";
-            updatePinDisplay();
-        }
+        if (currentPinInput === CONFIG[pendingUserLogin].pin) { closePin(); completeLogin(pendingUserLogin); } else { alert("CODE INCORRECT"); currentPinInput = ""; updatePinDisplay(); }
     }
-
     function completeLogin(name) {
         currentUser = name;
         document.getElementById('loginScreen').style.display = 'none';
@@ -238,17 +230,11 @@
         document.getElementById('headerAvatar').src = CONFIG[name].avatar;
         renderDashboard();
     }
-
-    function logout() {
-        currentUser = null;
-        document.getElementById('mainApp').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'flex';
-    }
+    function logout() { currentUser = null; document.getElementById('mainApp').style.display = 'none'; document.getElementById('loginScreen').style.display = 'flex'; }
 
     function renderDashboard() {
         if (!currentUser) return;
-        const config = CONFIG[currentUser];
-        const isAdmin = config.isAdmin;
+        const isAdmin = CONFIG[currentUser].isAdmin;
         const userData = appData.users[currentUser] || {gold:0, xp:0};
 
         if(!isAdmin) {
@@ -259,7 +245,6 @@
              document.getElementById('headerLevel').innerText = "ADMIN";
         }
 
-        // --- CRASH FIX: FILTER OUT OLD USERS ---
         const sortedUsers = Object.keys(appData.users)
             .filter(u => CONFIG[u] && !CONFIG[u].isAdmin) 
             .sort((a,b) => appData.users[b].xp - appData.users[a].xp);
@@ -298,7 +283,6 @@
     }
 
     async function syncData() {
-        if(API_URL.includes("PASTE_YOUR")) return;
         await fetch(API_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(appData) });
     }
 
@@ -314,7 +298,6 @@
     function completeTask(id) { appData.tasks.find(t=>t.id===id).status = 'review'; try{confetti({particleCount:50,origin:{y:0.8}});}catch(e){} renderDashboard(); syncData(); }
     function approveTask(id) { 
         const t=appData.tasks.find(t=>t.id===id); t.status='done'; 
-        // SAFETY CHECK: Only give gold if user exists
         if(appData.users[t.assignee]) { appData.users[t.assignee].gold+=t.gold; appData.users[t.assignee].xp+=t.gold; }
         try{confetti({particleCount:150,spread:70,origin:{y:0.6}});}catch(e){} renderDashboard(); syncData(); 
     }
