@@ -24,7 +24,7 @@
             border-radius:50%; 
             margin:0 auto 10px auto; 
             display:block; 
-            object-fit:cover; /* Recadre la photo sans l'écraser */
+            object-fit:cover;
             border:2px solid white; 
             background-color: #333;
         }
@@ -48,6 +48,17 @@
         .shop-item { background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); padding:10px; text-align:center; border-radius:10px; }
         input, select { width:100%; padding:12px; margin:5px 0; background:#091220; border:1px solid #2a3b55; color:white; border-radius:8px; }
         
+        /* COPYRIGHT FOOTER */
+        .footer-copyright {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-top: 40px;
+            opacity: 0.6;
+            letter-spacing: 1px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
         /* LOADING & POPUP */
         #loadingOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-deep); z-index:7000; display:flex; justify-content:center; align-items:center; color:var(--accent-cyan); }
         #successPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(5, 10, 20, 0.95); border: 3px solid var(--accent-gold); padding: 40px; border-radius: 20px; text-align: center; z-index: 3000; display: none; min-width: 250px; }
@@ -79,6 +90,8 @@
             <div class="profile-name">Karine (Admin)</div>
         </div>
     </div>
+    
+    <div class="footer-copyright">© 2025 FC Computers</div>
 </div>
 
 <div class="container" id="mainApp" style="display:none;">
@@ -135,6 +148,8 @@
             </div>
         </div>
     </div>
+
+    <div class="footer-copyright">© 2025 FC Computers</div>
 </div>
 
 <script>
